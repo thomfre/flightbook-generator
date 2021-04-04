@@ -52,7 +52,7 @@ namespace Flightbook.Generator.Export
                 return null;
             }
 
-            return $"/aircrafts/{registration}.jpg";
+            return $"/aircrafts/{registration.ToLowerInvariant()}.jpg";
         }
 
         private List<Airport> ExtractAirports(List<LogEntry> logEntries, List<AirportInfo> worldAirports)
