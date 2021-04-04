@@ -30,6 +30,10 @@ namespace Flightbook.Generator.Export
             DirectoryCopy(Path.Join(frameworkDir, "src"), Path.Join(outputDir, "src"), true);
             CopyFile(frameworkDir, outputDir, "package.json");
             CopyFile(frameworkDir, outputDir, "tsconfig.json");
+            CopyFile(frameworkDir, outputDir, ".editorconfig");
+            CopyFile(frameworkDir, outputDir, ".prettierrc");
+            CopyFile(frameworkDir, outputDir, ".prettierignore");
+            CopyFile(frameworkDir, outputDir, ".eslintrc");
             CopyFile(frameworkDir, outputDir, "yarn.lock");
         }
 
