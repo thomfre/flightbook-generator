@@ -89,9 +89,14 @@ namespace Flightbook.Generator.Export
         {
             CopyIfExists(configDir, "icon.png", outputDir, @"public\icon.png");
             CopyIfExists(configDir, "logo.svg", outputDir, @"public\logo.svg");
+            CopyIfExists(configDir, "config.json", outputDir, @"src\data\config.json");
             if (Directory.Exists(Path.Join(configDir, "aircrafts")))
             {
                 DirectoryCopy(Path.Join(configDir, "aircrafts"), Path.Join(outputDir, @"public\aircrafts"), true);
+            }
+            if (Directory.Exists(Path.Join(configDir, "airports")))
+            {
+                DirectoryCopy(Path.Join(configDir, "airports"), Path.Join(outputDir, @"public\airports"), true);
             }
         }
 

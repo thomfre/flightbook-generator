@@ -39,6 +39,7 @@ namespace Flightbook.Generator.Export
                 aircraft.FirstFlown = filteredLogEntries.Select(l => l.LogDate).Min();
                 aircraft.LastFlown = filteredLogEntries.Select(l => l.LogDate).Max();
                 aircraft.Type = filteredLogEntries.Select(l => l.AircraftType).First();
+                aircraft.NumberOfFlights = filteredLogEntries.Length;
                 aircraft.Picture = GetAircraftPicture(aircraft.Registration);
             });
 
@@ -69,8 +70,11 @@ namespace Flightbook.Generator.Export
 
                 airport.FirstVisited = filteredLogEntries.Select(l => l.LogDate).Min();
                 airport.LastVisited = filteredLogEntries.Select(l => l.LogDate).Max();
+                airport.DistinctVisitDates = filteredLogEntries.Select(l => l.LogDate).Distinct().Count();
 
-                AirportInfo airportInfo = worldAirports.Find(info => string.Equals(info.IcaoCode, airport.Icao, StringComparison.InvariantCultureIgnoreCase));
+                airport.Picture = GetAirportPicture(airport.Icao);
+
+                AirportInfo airportInfo = worldAirports.Find(ai => string.Equals(ai.IcaoCode, airport.Icao, StringComparison.InvariantCultureIgnoreCase));
                 if (airportInfo == null)
                 {
                     return;
@@ -87,13 +91,23 @@ namespace Flightbook.Generator.Export
             return airports;
         }
 
+        private string GetAirportPicture(string icao)
+        {
+            if (!File.Exists($@"config\airports\{icao.ToLowerInvariant()}.jpg"))
+            {
+                return null;
+            }
+
+            return $"/airports/{icao.ToLowerInvariant()}.jpg";
+        }
+
         private List<Country> ExtractCountries(List<Airport> airports, List<CountryInfo> worldCountries)
         {
             List<Country> countries = airports.Select(c => c.IsoCountry).Distinct().Select(c => new Country {Iso = c}).ToList();
 
             countries.ForEach(country =>
             {
-                CountryInfo countryInfo = worldCountries.Find(countryInfo => string.Equals(countryInfo.Code, country.Iso, StringComparison.InvariantCultureIgnoreCase));
+                CountryInfo countryInfo = worldCountries.Find(ci => string.Equals(ci.Code, country.Iso, StringComparison.InvariantCultureIgnoreCase));
                 if (countryInfo == null)
                 {
                     return;

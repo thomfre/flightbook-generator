@@ -10,5 +10,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public decimal[] Coordinates { get; set; }
         public DateTime FirstVisited { get; set; }
         public DateTime LastVisited { get; set; }
+        public int DistinctVisitDates { get; set; }
+        public string Picture { get; set; }
     }
 }

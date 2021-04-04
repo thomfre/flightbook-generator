@@ -8,6 +8,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public string Type { get; set; }
         public DateTime FirstFlown { get; set; }
         public DateTime LastFlown { get; set; }
+        public int NumberOfFlights { get; set; }
         public string Picture { get; set; }
     }
 }
