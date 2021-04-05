@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using CsvHelper;
 using Flightbook.Generator.Models;
 
@@ -11,7 +12,9 @@ namespace Flightbook.Generator.Import
     {
         public List<LogEntry> Import()
         {
-            using StreamReader reader = new(@"config\logbook.csv");
+            string logbookPath = GetLogbookPath();
+
+            using StreamReader reader = new(logbookPath);
             using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
 
             csv.Read();
@@ -43,6 +46,17 @@ namespace Flightbook.Generator.Import
             }
 
             return logEntries;
+        }
+
+        private string GetLogbookPath()
+        {
+            string configPath = string.Join(Directory.GetCurrentDirectory(), "config");
+            DirectoryInfo configDirectory = new(configPath);
+            IOrderedEnumerable<FileInfo> files = configDirectory.GetFiles()
+                .Where(f => f.Extension.Equals(".csv", StringComparison.InvariantCultureIgnoreCase))
+                .OrderByDescending(f => f.LastWriteTimeUtc);
+
+            return files.First().FullName;
         }
 
         private int HoursMinutesToMinutes(string hoursMinutes)
