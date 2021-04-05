@@ -77,7 +77,7 @@ namespace Flightbook.Generator.Export
                 airport.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 airport.AsFrom = filteredLogEntries.Any(l => l.From == airport.Icao);
                 airport.AsTo = filteredLogEntries.Any(l => l.To == airport.Icao);
-                airport.AsVia = filteredLogEntries.Any(l =>l.Via.Contains(airport.Icao));
+                airport.AsVia = filteredLogEntries.Any(l => l.Via != null && l.Via.Contains(airport.Icao));
 
                 airport.Picture = GetAirportPicture(airport.Icao);
 
