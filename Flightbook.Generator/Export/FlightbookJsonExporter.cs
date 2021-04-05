@@ -17,8 +17,9 @@ namespace Flightbook.Generator.Export
             List<Aircraft> aircrafts = ExtractAircrafts(logEntries);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports);
             List<Country> countries = ExtractCountries(airports, worldCountries);
+            List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
 
-            Models.Flightbook.Flightbook flightbook = new() {Aircrafts = aircrafts, Airports = airports, Countries = countries};
+            Models.Flightbook.Flightbook flightbook = new() {Aircrafts = aircrafts, Airports = airports, Countries = countries, FlightTimeMonths = flightTimeStatistics};
 
             DefaultContractResolver contractResolver = new()
             {
@@ -124,6 +125,31 @@ namespace Flightbook.Generator.Export
             });
 
             return countries;
+        }
+
+        private List<FlightTimeMonth> GetFlightTimeStatistics(List<LogEntry> logEntries)
+        {
+            DateTime startDate = logEntries.Select(l => l.LogDate).Min();
+            DateTime endOfMonth = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+
+            List<FlightTimeMonth> months = new();
+
+            while (startDate <= endOfMonth)
+            {
+                List<LogEntry> filteredLogEntries = logEntries.Where(l => l.LogDate.Year == startDate.Year && l.LogDate.Month == startDate.Month).ToList();
+
+                months.Add(new FlightTimeMonth
+                {
+                    Month = startDate.ToString("yyyy-MM"),
+                    FlightTimeMinutes = filteredLogEntries.Sum(l => l.TotalMinutes),
+                    DualMinutes = filteredLogEntries.Sum(l => l.DualMinutes),
+                    PicMinutes = filteredLogEntries.Sum(l => l.PicMinutes)
+                });
+
+                startDate = startDate.AddMonths(1);
+            }
+
+            return months;
         }
     }
 }

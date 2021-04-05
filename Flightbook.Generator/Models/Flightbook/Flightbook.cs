@@ -9,5 +9,6 @@ namespace Flightbook.Generator.Models.Flightbook
         public List<Aircraft> Aircrafts { get; set; }
         public List<Airport> Airports { get; set; }
         public List<Country> Countries { get; set; }
+        public List<FlightTimeMonth> FlightTimeMonths { get; set; }
     }
 }
