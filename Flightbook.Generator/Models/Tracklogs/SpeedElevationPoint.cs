@@ -2,10 +2,10 @@
 {
     public class SpeedElevationPoint
     {
-        public SpeedElevationPoint(decimal elevation, decimal speed)
+        public SpeedElevationPoint(decimal elevationInFeet, decimal speedInMs)
         {
-            Elevation = elevation;
-            Speed = speed;
+            Elevation = elevationInFeet * 3.281m;
+            Speed = speedInMs * 1.944m;
         }
 
         public decimal Elevation { get; set; }
