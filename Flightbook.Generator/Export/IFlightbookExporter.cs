@@ -1,7 +1,9 @@
-﻿namespace Flightbook.Generator.Export
+﻿using System.Collections.Generic;
+
+namespace Flightbook.Generator.Export
 {
     internal interface IFlightbookExporter
     {
-        void Export(string flightbookJson);
+        void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson);
     }
 }

@@ -1,11 +1,12 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 
 namespace Flightbook.Generator.Export
 {
     internal class FlightbookExporter : IFlightbookExporter
     {
-        public void Export(string flightbookJson)
+        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson)
         {
             string flightbookDir = "flightbook";
             string configDir = "config";
@@ -13,6 +14,7 @@ namespace Flightbook.Generator.Export
 
             CopyFramework(flightbookDir, outputDir);
             ExportJson(flightbookJson, outputDir);
+            ExportTrackLogs(trackLogListJson, trackLogFileJson, outputDir);
             CopyOtherFiles(configDir, outputDir);
         }
 
@@ -85,6 +87,22 @@ namespace Flightbook.Generator.Export
             outputFile.Flush();
         }
 
+        private void ExportTrackLogs(string trackLogListJson, Dictionary<string, string> trackLogFileJson, string outputDir)
+        {
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\tracklogs.json"));
+            outputFile.Write(trackLogListJson);
+            outputFile.Flush();
+
+            Directory.CreateDirectory(Path.Join(outputDir, @"public\tracklogs"));
+
+            foreach ((string filename, string content) in trackLogFileJson)
+            {
+                using StreamWriter trackLogOutputFile = new(Path.Join(outputDir, @"public\tracklogs\", filename));
+                trackLogOutputFile.Write(content);
+                trackLogOutputFile.Flush();
+            }
+        }
+
         private void CopyOtherFiles(string configDir, string outputDir)
         {
             CopyIfExists(configDir, "icon.png", outputDir, @"public\icon.png");
@@ -94,6 +112,7 @@ namespace Flightbook.Generator.Export
             {
                 DirectoryCopy(Path.Join(configDir, "aircrafts"), Path.Join(outputDir, @"public\aircrafts"), true);
             }
+
             if (Directory.Exists(Path.Join(configDir, "airports")))
             {
                 DirectoryCopy(Path.Join(configDir, "airports"), Path.Join(outputDir, @"public\airports"), true);

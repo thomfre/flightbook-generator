@@ -50,7 +50,7 @@ namespace Flightbook.Generator.Import
 
         private string GetLogbookPath()
         {
-            string configPath = string.Join(Directory.GetCurrentDirectory(), "config");
+            string configPath = Path.Join(Directory.GetCurrentDirectory(), "config");
             DirectoryInfo configDirectory = new(configPath);
             IOrderedEnumerable<FileInfo> files = configDirectory.GetFiles()
                 .Where(f => f.Extension.Equals(".csv", StringComparison.InvariantCultureIgnoreCase))

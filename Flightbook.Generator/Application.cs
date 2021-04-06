@@ -4,24 +4,30 @@ using Flightbook.Generator.Export;
 using Flightbook.Generator.Import;
 using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.OurAirports;
+using Flightbook.Generator.Models.Tracklogs;
 
 namespace Flightbook.Generator
 {
     internal class Application
     {
         private readonly Format _console;
+        private readonly IFlightbookExporter _flightbookExporter;
+        private readonly IFlightbookJsonExporter _flightbookJsonExporter;
+        private readonly IGpxToGeoJsonImporter _gpxToGeoJsonImporter;
         private readonly ILogbookCsvImporter _logbookCsvImporter;
         private readonly IOurAirportsImporter _ourAirportsImporter;
-        private readonly IFlightbookJsonExporter _flightbookJsonExporter;
-        private readonly IFlightbookExporter _flightbookExporter;
+        private readonly ITracklogExporter _tracklogExporter;
 
-        public Application(Format console, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IFlightbookJsonExporter flightbookJsonExporter, IFlightbookExporter flightbookExporter)
+        public Application(Format console, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IFlightbookJsonExporter flightbookJsonExporter, IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter,
+            ITracklogExporter tracklogExporter)
         {
             _console = console;
             _logbookCsvImporter = logbookCsvImporter;
             _ourAirportsImporter = ourAirportsImporter;
             _flightbookJsonExporter = flightbookJsonExporter;
             _flightbookExporter = flightbookExporter;
+            _gpxToGeoJsonImporter = gpxToGeoJsonImporter;
+            _tracklogExporter = tracklogExporter;
         }
 
         public void Run()
@@ -52,8 +58,16 @@ namespace Flightbook.Generator
             string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldCountries);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
+            _console.WriteLine("Converting GPX files", Colors.txtInfo);
+            List<GpxTrack> trackLogs = _gpxToGeoJsonImporter.SearchAndImport();
+            _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
+
+            _console.WriteLine("Exporting Tracklog data", Colors.txtInfo);
+            (string trackLogListJson, Dictionary<string, string> trackLogFileJson) = _tracklogExporter.CreateTracklogFiles(trackLogs);
+            _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
+
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
-            _flightbookExporter.Export(flightbookJson);
+            _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson);
             _console.WriteLine("Framework and data updated, remember to commit and push changes", Colors.txtSuccess);
 
             _console.ResetColor();
