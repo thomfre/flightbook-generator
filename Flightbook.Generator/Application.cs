@@ -59,7 +59,7 @@ namespace Flightbook.Generator
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Converting GPX files", Colors.txtInfo);
-            List<GpxTrack> trackLogs = _gpxToGeoJsonImporter.SearchAndImport();
+            List<GpxTrack> trackLogs = _gpxToGeoJsonImporter.SearchAndImport(logEntries);
             _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Tracklog data", Colors.txtInfo);

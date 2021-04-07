@@ -28,7 +28,7 @@ namespace Flightbook.Generator.Export
                     fileName = $"{t.Date}-{iterator++}.json";
                 }
 
-                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Filename = fileName});
+                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName});
                 trackFiles.Add(fileName, JsonConvert.SerializeObject(t, serializerSettings));
             });
 

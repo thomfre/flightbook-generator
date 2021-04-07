@@ -12,5 +12,6 @@ namespace Flightbook.Generator.Models.Tracklogs
         public string Filename { get; set; }
         public string Date { get; set; }
         public string Name { get; set; }
+        public string Aircraft { get; set; }
     }
 }
