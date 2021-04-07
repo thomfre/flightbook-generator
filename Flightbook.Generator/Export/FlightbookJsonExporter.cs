@@ -6,7 +6,6 @@ using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.OurAirports;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Flightbook.Generator.Export
 {
@@ -21,12 +20,7 @@ namespace Flightbook.Generator.Export
 
             Models.Flightbook.Flightbook flightbook = new() {Aircrafts = aircrafts, Airports = airports, Countries = countries, FlightTimeMonths = flightTimeStatistics};
 
-            DefaultContractResolver contractResolver = new()
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-
-            return JsonConvert.SerializeObject(flightbook, new JsonSerializerSettings {ContractResolver = contractResolver});
+            return JsonConvert.SerializeObject(flightbook);
         }
 
         private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries)

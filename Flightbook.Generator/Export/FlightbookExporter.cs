@@ -6,7 +6,7 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookExporter : IFlightbookExporter
     {
-        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson)
+        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect)
         {
             string flightbookDir = "flightbook";
             string configDir = "config";
@@ -15,6 +15,7 @@ namespace Flightbook.Generator.Export
             CopyFramework(flightbookDir, outputDir);
             ExportJson(flightbookJson, outputDir);
             ExportTrackLogs(trackLogListJson, trackLogFileJson, outputDir);
+            ExportAirportsToCollect(airportsToCollect, outputDir);
             CopyOtherFiles(configDir, outputDir);
         }
 
@@ -101,6 +102,13 @@ namespace Flightbook.Generator.Export
                 trackLogOutputFile.Write(content);
                 trackLogOutputFile.Flush();
             }
+        }
+
+        private void ExportAirportsToCollect(string airportsToCollect, string outputDir)
+        {
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\airports.json"));
+            outputFile.Write(airportsToCollect);
+            outputFile.Flush();
         }
 
         private void CopyOtherFiles(string configDir, string outputDir)

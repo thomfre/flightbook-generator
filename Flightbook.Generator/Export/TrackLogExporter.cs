@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Flightbook.Generator.Models.Tracklogs;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Serialization;
 
 namespace Flightbook.Generator.Export
 {
@@ -11,13 +10,6 @@ namespace Flightbook.Generator.Export
         {
             GpxTrackList trackList = new() {Tracks = new List<GpxTrackInfo>(tracks.Count)};
             Dictionary<string, string> trackFiles = new();
-
-            DefaultContractResolver contractResolver = new()
-            {
-                NamingStrategy = new CamelCaseNamingStrategy()
-            };
-
-            JsonSerializerSettings serializerSettings = new() {ContractResolver = contractResolver};
 
             tracks.ForEach(t =>
             {
@@ -29,10 +21,10 @@ namespace Flightbook.Generator.Export
                 }
 
                 trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName});
-                trackFiles.Add(fileName, JsonConvert.SerializeObject(t, serializerSettings));
+                trackFiles.Add(fileName, JsonConvert.SerializeObject(t));
             });
 
-            return (listJson: JsonConvert.SerializeObject(trackList, serializerSettings), trackFiles);
+            return (listJson: JsonConvert.SerializeObject(trackList), trackFiles);
         }
     }
 }
