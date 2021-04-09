@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -6,7 +7,7 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookExporter : IFlightbookExporter
     {
-        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect)
+        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics)
         {
             string flightbookDir = "flightbook";
             string configDir = "config";
@@ -17,6 +18,7 @@ namespace Flightbook.Generator.Export
             ExportTrackLogs(trackLogListJson, trackLogFileJson, outputDir);
             ExportAirportsToCollect(airportsToCollect, outputDir);
             CopyOtherFiles(configDir, outputDir);
+            InjectCfAnalytics(outputDir, cfAnalytics);
         }
 
         private string GetOutputDir()
@@ -134,6 +136,20 @@ namespace Flightbook.Generator.Export
             {
                 File.Copy(sourcePath, Path.Join(outputDir, outputPath), true);
             }
+        }
+
+        private void InjectCfAnalytics(string outputDir, string cfAnalytics)
+        {
+            if (string.IsNullOrEmpty(cfAnalytics))
+            {
+                return;
+            }
+
+            string indexPath = Path.Join(outputDir, @"public\index.html");
+
+            string indexHtml = File.ReadAllText(indexPath);
+            indexHtml = indexHtml.Replace("</body>", $"{cfAnalytics}{Environment.NewLine}</body>");
+            File.WriteAllText(indexPath, indexHtml);
         }
     }
 }

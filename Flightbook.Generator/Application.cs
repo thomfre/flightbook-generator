@@ -85,7 +85,7 @@ namespace Flightbook.Generator
             _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
 
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
-            _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect);
+            _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics);
             _console.WriteLine("Framework and data updated, remember to commit and push changes", Colors.txtSuccess);
 
             _console.ResetColor();

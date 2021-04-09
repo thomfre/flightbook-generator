@@ -4,5 +4,6 @@
     {
         public string ParentPage { get; set; }
         public string[] CollectingAirportsFromCountries { get; set; }
+        public string CfAnalytics { get; set; }
     }
 }
