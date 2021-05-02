@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Xml.Serialization;
 using Flightbook.Generator.Models;
+using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.Tracklogs;
 using GeoJSON.Net.Geometry;
 
@@ -12,7 +13,7 @@ namespace Flightbook.Generator.Import
 {
     internal class GpxToGeoJsonImporter : IGpxToGeoJsonImporter
     {
-        public List<GpxTrack> SearchAndImport(List<LogEntry> logEntries)
+        public List<GpxTrack> SearchAndImport(List<LogEntry> logEntries, TracklogExtra[] tracklogExtras)
         {
             string gpxPath = Path.Join(Directory.GetCurrentDirectory(), "config", "Gpx");
             if (!Directory.Exists(gpxPath))
@@ -24,10 +25,10 @@ namespace Flightbook.Generator.Import
             List<FileInfo> files = configDirectory.GetFiles()
                 .Where(f => f.Extension.Equals(".Gpx", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-            return files.Select(file => Convert(file.FullName, logEntries)).ToList();
+            return files.Select(file => Convert(file.FullName, logEntries, tracklogExtras)).ToList();
         }
 
-        private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries)
+        private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras)
         {
             XmlSerializer xmlSerializer = new(typeof(Gpx));
             using TextReader reader = new StringReader(File.ReadAllText(gpxPath));
@@ -64,11 +65,14 @@ namespace Flightbook.Generator.Import
             DateTime? trackStartTime = gpx.Tracks?.First().Segments.FirstOrDefault()?.Points?.Select(p => p.Time).Min();
             string date = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd") : "unknown";
 
+            TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
+
             return new GpxTrack
             {
                 Date = date,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
                 Aircraft = GetAircraft(logEntries, trackStartTime.Value),
+                Youtube = tracklogExtra?.Youtube,
                 TotalDistance = totalDistance,
                 GeoJson = lineString,
                 SpeedElevationPoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList()
