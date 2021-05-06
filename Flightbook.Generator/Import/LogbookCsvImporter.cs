@@ -20,26 +20,28 @@ namespace Flightbook.Generator.Import
             csv.Read();
             csv.ReadHeader();
 
+            Dictionary<string, string> headerNames = GetHeaderNames(csv.HeaderRecord);
+
             List<LogEntry> logEntries = new();
 
             while (csv.Read())
             {
-                string via = csv.GetField<string>("Via");
-                int.TryParse(csv.GetField<string>("Day Ldg"), out int dayLandings);
-                int.TryParse(csv.GetField<string>("Night Ldg"), out int nightLandings);
+                string via = csv.GetField<string>(headerNames["Via"]);
+                int.TryParse(csv.GetField<string>(headerNames["Day Ldg"]), out int dayLandings);
+                int.TryParse(csv.GetField<string>(headerNames["Night Ldg"]), out int nightLandings);
 
                 logEntries.Add(new LogEntry
                 {
-                    LogDate = csv.GetField<DateTime>("Date"),
-                    From = csv.GetField<string>("Departure"),
-                    To = csv.GetField<string>("Arrival"),
+                    LogDate = csv.GetField<DateTime>(headerNames["Date"]),
+                    From = csv.GetField<string>(headerNames["Departure"]),
+                    To = csv.GetField<string>(headerNames["Arrival"]),
                     Via = string.IsNullOrWhiteSpace(via) ? null : via.Split(","),
-                    AircraftRegistration = csv.GetField<string>("Aircraft Registration"),
-                    AircraftType = csv.GetField<string>("Aircraft Type"),
-                    TotalMinutes = HoursMinutesToMinutes(csv.GetField<string>("Total Flight Time")),
-                    PicMinutes = HoursMinutesToMinutes(csv.GetField<string>("PIC")),
-                    DualMinutes = HoursMinutesToMinutes(csv.GetField<string>("Dual Received")),
-                    InstrumentMinutes = HoursMinutesToMinutes(csv.GetField<string>("Instrument Flying")),
+                    AircraftRegistration = csv.GetField<string>(headerNames["Aircraft Registration"]),
+                    AircraftType = csv.GetField<string>(headerNames["Aircraft Type"]),
+                    TotalMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Total Flight Time"])),
+                    PicMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["PIC"])),
+                    DualMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Dual Received"])),
+                    InstrumentMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Instrument Flying"])),
                     DayLandings = dayLandings,
                     NightLandings = nightLandings
                 });
@@ -68,6 +70,28 @@ namespace Flightbook.Generator.Import
 
             string[] parts = hoursMinutes.Split(":");
             return int.Parse(parts[0]) * 60 + int.Parse(parts[1]);
+        }
+
+        private Dictionary<string, string> GetHeaderNames(string[] header)
+        {
+            Dictionary<string, string> headerNameMappings = new()
+            {
+                {"Via", header.FirstOrDefault(r => r == "Via")},
+                {"Day Ldg", header.FirstOrDefault(r => r == "Day Ldg")},
+                {"Night Ldg", header.FirstOrDefault(r => r == "Night Ldg")},
+                {"Date", header.FirstOrDefault(r => r == "Date")},
+                {"Departure", header.FirstOrDefault(r => r == "Departure")},
+                {"Arrival", header.FirstOrDefault(r => r == "Arrival")},
+                {"Aircraft Registration", header.FirstOrDefault(r => r == "Aircraft Registration")},
+                {"Aircraft Type", header.FirstOrDefault(r => r == "Aircraft Type")},
+                {"Total Flight Time", header.FirstOrDefault(r => r == "Total Flight Time")},
+                {"PIC", header.FirstOrDefault(r => r == "PIC" || r == "Flight time PIC")},
+                {"Dual Received", header.FirstOrDefault(r => r == "Dual Received" || r == "Dual" || r == "Flight time Dual" || r == "Flight time Dual Received")},
+                {"Instrument Flying", header.FirstOrDefault(r => r == "Instrument Flying" || r == "Instrument" || r == "Flight time Instrument Flying")}
+            };
+
+
+            return headerNameMappings;
         }
     }
 }
