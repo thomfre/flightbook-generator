@@ -137,7 +137,8 @@ namespace Flightbook.Generator.Export
                     Month = startDate.ToString("yyyy-MM"),
                     FlightTimeMinutes = filteredLogEntries.Sum(l => l.TotalMinutes),
                     DualMinutes = filteredLogEntries.Sum(l => l.DualMinutes),
-                    PicMinutes = filteredLogEntries.Sum(l => l.PicMinutes)
+                    PicMinutes = filteredLogEntries.Sum(l => l.PicMinutes),
+                    NumberOfFlights = filteredLogEntries.Count
                 });
 
                 startDate = startDate.AddMonths(1);

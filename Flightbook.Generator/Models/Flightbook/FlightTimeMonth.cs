@@ -6,5 +6,6 @@
         public int FlightTimeMinutes { get; set; }
         public int DualMinutes { get; set; }
         public int PicMinutes { get; set; }
+        public int NumberOfFlights { get; set; }
     }
 }
