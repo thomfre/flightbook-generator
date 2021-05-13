@@ -13,5 +13,6 @@ namespace Flightbook.Generator.Models.Tracklogs
         public string Date { get; set; }
         public string Name { get; set; }
         public string Aircraft { get; set; }
+        public bool HasYoutube { get; set; }
     }
 }
