@@ -116,6 +116,7 @@ namespace Flightbook.Generator.Export
         private void CopyOtherFiles(string configDir, string outputDir)
         {
             CopyIfExists(configDir, "icon.png", outputDir, @"public\icon.png");
+            CopyIfExists(configDir, "icon.svg", outputDir, @"public\icon.svg");
             CopyIfExists(configDir, "logo.svg", outputDir, @"public\logo.svg");
             CopyIfExists(configDir, "config.json", outputDir, @"src\data\config.json");
             if (Directory.Exists(Path.Join(configDir, "aircrafts")))

@@ -73,6 +73,7 @@ namespace Flightbook.Generator.Import
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
                 Aircraft = GetAircraft(logEntries, trackStartTime.Value),
                 Youtube = tracklogExtra?.Youtube,
+                Blogpost = tracklogExtra?.Blogpost,
                 TotalDistance = totalDistance,
                 GeoJson = lineString,
                 SpeedElevationPoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList()
