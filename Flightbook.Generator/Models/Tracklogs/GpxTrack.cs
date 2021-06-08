@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 
 namespace Flightbook.Generator.Models.Tracklogs
@@ -6,6 +7,7 @@ namespace Flightbook.Generator.Models.Tracklogs
     public class GpxTrack
     {
         public string Date { get; set; }
+        [JsonIgnore]
         public DateTime DateTime { get; set; }
         public string Name { get; set; }
         public string Aircraft { get; set; }
