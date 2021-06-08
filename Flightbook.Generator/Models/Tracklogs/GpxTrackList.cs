@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json;
+using System;
+using System.Collections.Generic;
 
 namespace Flightbook.Generator.Models.Tracklogs
 {
@@ -11,6 +13,8 @@ namespace Flightbook.Generator.Models.Tracklogs
     {
         public string Filename { get; set; }
         public string Date { get; set; }
+        [JsonIgnore]
+        public DateTime DateTime { get; set; }
         public string Name { get; set; }
         public string Aircraft { get; set; }
         public bool HasYoutube { get; set; }

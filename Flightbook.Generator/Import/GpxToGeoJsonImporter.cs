@@ -64,12 +64,14 @@ namespace Flightbook.Generator.Import
 
             DateTime? trackStartTime = gpx.Tracks?.First().Segments.FirstOrDefault()?.Points?.Select(p => p.Time).Min();
             string date = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd") : "unknown";
+            string dateTime = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd HH:mm") : "unknown";
 
             TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
 
             return new GpxTrack
             {
                 Date = date,
+                DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
                 Aircraft = GetAircraft(logEntries, trackStartTime.Value),
                 Youtube = tracklogExtra?.Youtube,

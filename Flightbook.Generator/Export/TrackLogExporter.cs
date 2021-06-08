@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using Flightbook.Generator.Models.Tracklogs;
 using Newtonsoft.Json;
 
@@ -20,9 +21,11 @@ namespace Flightbook.Generator.Export
                     fileName = $"{t.Date}-{iterator++}.json";
                 }
 
-                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName, HasYoutube = !string.IsNullOrEmpty(t.Youtube), HasBlogpost = !string.IsNullOrEmpty(t.Blogpost)});
+                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, DateTime = t.DateTime, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName, HasYoutube = !string.IsNullOrEmpty(t.Youtube), HasBlogpost = !string.IsNullOrEmpty(t.Blogpost)});
                 trackFiles.Add(fileName, JsonConvert.SerializeObject(t));
             });
+
+            trackList.Tracks = trackList.Tracks.OrderByDescending(f => f.DateTime).ToList();
 
             return (listJson: JsonConvert.SerializeObject(trackList), trackFiles);
         }

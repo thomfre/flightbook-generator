@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Flightbook.Generator.Models.Tracklogs
 {
     public class GpxTrack
     {
         public string Date { get; set; }
+        public DateTime DateTime { get; set; }
         public string Name { get; set; }
         public string Aircraft { get; set; }
         public string Youtube { get; set; }
