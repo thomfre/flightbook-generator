@@ -20,7 +20,7 @@ namespace Flightbook.Generator.Export
                     fileName = $"{t.Date}-{iterator++}.json";
                 }
 
-                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName, HasYoutube = !string.IsNullOrEmpty(t.Youtube)});
+                trackList.Tracks.Add(new GpxTrackInfo {Date = t.Date, Name = t.Name, Aircraft = t.Aircraft, Filename = fileName, HasYoutube = !string.IsNullOrEmpty(t.Youtube), HasBlogpost = !string.IsNullOrEmpty(t.Blogpost)});
                 trackFiles.Add(fileName, JsonConvert.SerializeObject(t));
             });
 
