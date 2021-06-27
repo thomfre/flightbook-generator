@@ -17,6 +17,14 @@ namespace Flightbook.Generator.Import
             return csv.GetRecords<AirportInfo>().ToList();
         }
 
+        public List<RunwayInfo> GetRunways()
+        {
+            using StreamReader reader = new(@"Data\runways.csv");
+            using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
+
+            return csv.GetRecords<RunwayInfo>().ToList();
+        }
+
         public List<CountryInfo> GetCountries()
         {
             using StreamReader reader = new(@"Data\countries.csv");

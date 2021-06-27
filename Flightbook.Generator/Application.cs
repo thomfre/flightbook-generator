@@ -65,11 +65,12 @@ namespace Flightbook.Generator
 
             _console.WriteLine("Reading airport/country data", Colors.txtInfo);
             List<AirportInfo> worldAirports = _ourAirportsImporter.GetAirports();
+            List<RunwayInfo> worldRunways = _ourAirportsImporter.GetRunways();
             List<CountryInfo> worldCountries = _ourAirportsImporter.GetCountries();
             _console.WriteLine($"Got information for {worldAirports.Count} airports and {worldCountries.Count} countries", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldCountries);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Converting GPX files", Colors.txtInfo);
