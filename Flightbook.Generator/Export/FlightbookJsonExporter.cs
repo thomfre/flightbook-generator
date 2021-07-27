@@ -11,14 +11,14 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries)
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, Config configuration)
         {
             List<Aircraft> aircrafts = ExtractAircrafts(logEntries);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
 
-            Models.Flightbook.Flightbook flightbook = new() {Aircrafts = aircrafts, Airports = airports, Countries = countries, FlightTimeMonths = flightTimeStatistics};
+            Models.Flightbook.Flightbook flightbook = new() {ParentPage = configuration.ParentPage?.Length > 0 ? configuration.ParentPage : null, Aircrafts = aircrafts, Airports = airports, Countries = countries, FlightTimeMonths = flightTimeStatistics};
 
             return JsonConvert.SerializeObject(flightbook);
         }

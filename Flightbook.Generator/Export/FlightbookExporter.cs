@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 
 namespace Flightbook.Generator.Export
 {
@@ -13,6 +14,7 @@ namespace Flightbook.Generator.Export
             string configDir = "config";
             string outputDir = GetOutputDir();
 
+            CleanTarget(outputDir);
             CopyFramework(flightbookDir, outputDir);
             ExportJson(flightbookJson, outputDir);
             ExportTrackLogs(trackLogListJson, trackLogFileJson, outputDir);
@@ -29,6 +31,22 @@ namespace Flightbook.Generator.Export
             return dirs.First(d => d.Replace($"{currentDirectory}\\", "").StartsWith("flightbook."));
         }
 
+        private void CleanTarget(string outputDir)
+        {
+            DirectoryInfo directory = new(outputDir);
+            foreach (FileInfo file in directory.GetFiles())
+            {
+                if (file.Name == ".git") continue;
+                file.Delete();
+            }
+
+            foreach (DirectoryInfo subDirectory in directory.GetDirectories())
+            {
+                if (subDirectory.Name == ".git") continue;
+                subDirectory.Delete(true);
+            }
+        }
+
         private void CopyFramework(string frameworkDir, string outputDir)
         {
             DirectoryCopy(Path.Join(frameworkDir, "public"), Path.Join(outputDir, "public"), true);
@@ -38,6 +56,7 @@ namespace Flightbook.Generator.Export
             CopyFile(frameworkDir, outputDir, ".editorconfig");
             CopyFile(frameworkDir, outputDir, ".prettierrc");
             CopyFile(frameworkDir, outputDir, ".prettierignore");
+            CopyFile(frameworkDir, outputDir, ".gitignore");
             CopyFile(frameworkDir, outputDir, ".eslintrc");
             CopyFile(frameworkDir, outputDir, "yarn.lock");
         }
@@ -85,14 +104,14 @@ namespace Flightbook.Generator.Export
 
         private void ExportJson(string flightbookJson, string outputDir)
         {
-            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\flightbook.json"));
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\flightbook.json"), false, Encoding.UTF8);
             outputFile.Write(flightbookJson);
             outputFile.Flush();
         }
 
         private void ExportTrackLogs(string trackLogListJson, Dictionary<string, string> trackLogFileJson, string outputDir)
         {
-            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\tracklogs.json"));
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\tracklogs.json"), false, Encoding.UTF8);
             outputFile.Write(trackLogListJson);
             outputFile.Flush();
 
@@ -100,7 +119,7 @@ namespace Flightbook.Generator.Export
 
             foreach ((string filename, string content) in trackLogFileJson)
             {
-                using StreamWriter trackLogOutputFile = new(Path.Join(outputDir, @"public\tracklogs\", filename));
+                using StreamWriter trackLogOutputFile = new(Path.Join(outputDir, @"public\tracklogs\", filename), false, Encoding.UTF8);
                 trackLogOutputFile.Write(content);
                 trackLogOutputFile.Flush();
             }
@@ -108,7 +127,7 @@ namespace Flightbook.Generator.Export
 
         private void ExportAirportsToCollect(string airportsToCollect, string outputDir)
         {
-            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\airports.json"));
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\airports.json"), false, Encoding.UTF8);
             outputFile.Write(airportsToCollect);
             outputFile.Flush();
         }
@@ -118,7 +137,7 @@ namespace Flightbook.Generator.Export
             CopyIfExists(configDir, "icon.png", outputDir, @"public\icon.png");
             CopyIfExists(configDir, "icon.svg", outputDir, @"public\icon.svg");
             CopyIfExists(configDir, "logo.svg", outputDir, @"public\logo.svg");
-            CopyIfExists(configDir, "config.json", outputDir, @"src\data\config.json");
+
             if (Directory.Exists(Path.Join(configDir, "aircrafts")))
             {
                 DirectoryCopy(Path.Join(configDir, "aircrafts"), Path.Join(outputDir, @"public\aircrafts"), true);

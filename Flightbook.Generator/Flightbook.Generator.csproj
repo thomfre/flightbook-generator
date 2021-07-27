@@ -6,8 +6,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Autofac" Version="6.1.0" />
-    <PackageReference Include="CsvHelper" Version="26.1.0" />
+    <PackageReference Include="Autofac" Version="6.2.0" />
+    <PackageReference Include="CsvHelper" Version="27.1.1" />
     <PackageReference Include="dein.Colorify" Version="2.6.0" />
     <PackageReference Include="GeoJSON.Net" Version="1.2.22-rc" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
@@ -18,6 +18,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Data\countries.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Data\runways.csv">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
