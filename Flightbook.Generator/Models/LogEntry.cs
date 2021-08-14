@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 
 namespace Flightbook.Generator.Models
 {
@@ -6,7 +7,9 @@ namespace Flightbook.Generator.Models
     {
         public DateTime LogDate { get; set; }
         public string From { get; set; }
+        public string Departure { get; set; }
         public string To { get; set; }
+        public string Arrival { get; set; }
         public string[] Via { get; set; }
         public string AircraftRegistration { get; set; }
         public string AircraftType { get; set; }

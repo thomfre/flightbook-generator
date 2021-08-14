@@ -96,7 +96,27 @@ namespace Flightbook.Generator.Import
                 return relevantLogEntries.First().AircraftRegistration;
             }
 
-            return relevantLogEntries.Select(l => l.AircraftRegistration).Distinct().Count() == 1 ? relevantLogEntries.First().AircraftRegistration : null;
+            if (relevantLogEntries.Select(l => l.AircraftRegistration).Distinct().Count() == 1)
+            {
+                return relevantLogEntries.First().AircraftRegistration;
+            }
+
+            List<LogEntry> evenMoreRelevantLogEntries = relevantLogEntries
+                .Where(l => Math.Abs(
+                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes) < 25)
+                .ToList();
+            
+            if (evenMoreRelevantLogEntries.Count() == 1)
+            {
+                return evenMoreRelevantLogEntries.First().AircraftRegistration;
+            }
+
+            if (evenMoreRelevantLogEntries.Select(l => l.AircraftRegistration).Distinct().Count() == 1)
+            {
+                return evenMoreRelevantLogEntries.First().AircraftRegistration;
+            }
+
+            return null;
         }
     }
 

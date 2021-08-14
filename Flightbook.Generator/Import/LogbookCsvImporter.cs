@@ -30,11 +30,14 @@ namespace Flightbook.Generator.Import
                 int.TryParse(csv.GetField<string>(headerNames["Day Ldg"]), out int dayLandings);
                 int.TryParse(csv.GetField<string>(headerNames["Night Ldg"]), out int nightLandings);
 
+
                 logEntries.Add(new LogEntry
                 {
                     LogDate = csv.GetField<DateTime>(headerNames["Date"]),
                     From = csv.GetField<string>(headerNames["Departure"]),
+                    Departure = csv.GetField<string>(headerNames["DepartureTime"]),
                     To = csv.GetField<string>(headerNames["Arrival"]),
+                    Arrival = csv.GetField<string>(headerNames["ArrivalTime"]),
                     Via = string.IsNullOrWhiteSpace(via) ? null : via.Split(","),
                     AircraftRegistration = csv.GetField<string>(headerNames["Aircraft Registration"]),
                     AircraftType = csv.GetField<string>(headerNames["Aircraft Type"]),
@@ -81,7 +84,9 @@ namespace Flightbook.Generator.Import
                 {"Night Ldg", header.FirstOrDefault(r => r == "Night Ldg")},
                 {"Date", header.FirstOrDefault(r => r == "Date")},
                 {"Departure", header.FirstOrDefault(r => r == "Departure")},
+                {"DepartureTime", header.FirstOrDefault(r => r == "Time")},
                 {"Arrival", header.FirstOrDefault(r => r == "Arrival")},
+                {"ArrivalTime", header.LastOrDefault(r => r == "Time")},
                 {"Aircraft Registration", header.FirstOrDefault(r => r == "Aircraft Registration")},
                 {"Aircraft Type", header.FirstOrDefault(r => r == "Aircraft Type")},
                 {"Total Flight Time", header.FirstOrDefault(r => r == "Total Flight Time")},
