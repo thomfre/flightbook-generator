@@ -14,5 +14,6 @@
         public string Tracklog { get; set; }
         public string Youtube { get; set; }
         public string Blogpost { get; set; }
+        public string Aircraft { get; set; }
     }
 }

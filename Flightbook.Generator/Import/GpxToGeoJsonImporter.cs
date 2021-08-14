@@ -73,7 +73,7 @@ namespace Flightbook.Generator.Import
                 Date = date,
                 DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
-                Aircraft = GetAircraft(logEntries, trackStartTime.Value),
+                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime.Value),
                 Youtube = tracklogExtra?.Youtube,
                 Blogpost = tracklogExtra?.Blogpost,
                 TotalDistance = totalDistance,
@@ -101,22 +101,12 @@ namespace Flightbook.Generator.Import
                 return relevantLogEntries.First().AircraftRegistration;
             }
 
-            List<LogEntry> evenMoreRelevantLogEntries = relevantLogEntries
-                .Where(l => Math.Abs(
-                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes) < 25)
-                .ToList();
+            LogEntry mostRelevantLogEntry = relevantLogEntries
+                .OrderBy(l => Math.Abs(
+                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes))
+                .FirstOrDefault();
             
-            if (evenMoreRelevantLogEntries.Count() == 1)
-            {
-                return evenMoreRelevantLogEntries.First().AircraftRegistration;
-            }
-
-            if (evenMoreRelevantLogEntries.Select(l => l.AircraftRegistration).Distinct().Count() == 1)
-            {
-                return evenMoreRelevantLogEntries.First().AircraftRegistration;
-            }
-
-            return null;
+            return mostRelevantLogEntry?.AircraftRegistration ?? "";
         }
     }
 
