@@ -84,15 +84,15 @@ namespace Flightbook.Generator.Import
                 {"Night Ldg", header.FirstOrDefault(r => r == "Night Ldg")},
                 {"Date", header.FirstOrDefault(r => r == "Date")},
                 {"Departure", header.FirstOrDefault(r => r == "Departure")},
-                {"DepartureTime", header.FirstOrDefault(r => r == "Time")},
+                {"DepartureTime", header.FirstOrDefault(r => r is "Time" or "Departure Time" or "DepartureTime")},
                 {"Arrival", header.FirstOrDefault(r => r == "Arrival")},
-                {"ArrivalTime", header.LastOrDefault(r => r == "Time")},
+                {"ArrivalTime", header.LastOrDefault(r => r is "Time" or "Arrival Time" or "ArrivalTime")},
                 {"Aircraft Registration", header.FirstOrDefault(r => r == "Aircraft Registration")},
                 {"Aircraft Type", header.FirstOrDefault(r => r == "Aircraft Type")},
                 {"Total Flight Time", header.FirstOrDefault(r => r == "Total Flight Time")},
-                {"PIC", header.FirstOrDefault(r => r == "PIC" || r == "Flight time PIC")},
-                {"Dual Received", header.FirstOrDefault(r => r == "Dual Received" || r == "Dual" || r == "Flight time Dual" || r == "Flight time Dual Received")},
-                {"Instrument Flying", header.FirstOrDefault(r => r == "Instrument Flying" || r == "Instrument" || r == "Flight time Instrument Flying")}
+                {"PIC", header.FirstOrDefault(r => r is "PIC" or "Flight time PIC")},
+                {"Dual Received", header.FirstOrDefault(r => r is "Dual Received" or "Dual" or "Flight time Dual" or "Flight time Dual Received")},
+                {"Instrument Flying", header.FirstOrDefault(r => r is "Instrument Flying" or "Instrument" or "Flight time Instrument Flying")}
             };
 
 
