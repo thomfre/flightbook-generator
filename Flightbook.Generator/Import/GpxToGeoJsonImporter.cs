@@ -64,7 +64,6 @@ namespace Flightbook.Generator.Import
 
             DateTime? trackStartTime = gpx.Tracks?.First().Segments.FirstOrDefault()?.Points?.Select(p => p.Time).Min();
             string date = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd") : "unknown";
-            string dateTime = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd HH:mm") : "unknown";
 
             TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
 
@@ -73,9 +72,11 @@ namespace Flightbook.Generator.Import
                 Date = date,
                 DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
-                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime.Value),
+                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime ?? DateTime.Now),
                 Youtube = tracklogExtra?.Youtube,
                 Blogpost = tracklogExtra?.Blogpost,
+                FacebookPost = tracklogExtra?.FacebookPost,
+                Gallery = tracklogExtra?.Gallery,
                 TotalDistance = totalDistance,
                 GeoJson = lineString,
                 SpeedElevationPoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList()
@@ -105,7 +106,7 @@ namespace Flightbook.Generator.Import
                 .OrderBy(l => Math.Abs(
                     (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes))
                 .FirstOrDefault();
-            
+
             return mostRelevantLogEntry?.AircraftRegistration ?? "";
         }
     }

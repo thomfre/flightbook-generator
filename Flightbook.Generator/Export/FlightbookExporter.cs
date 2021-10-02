@@ -36,13 +36,21 @@ namespace Flightbook.Generator.Export
             DirectoryInfo directory = new(outputDir);
             foreach (FileInfo file in directory.GetFiles())
             {
-                if (file.Name == ".git") continue;
+                if (file.Name == ".git")
+                {
+                    continue;
+                }
+
                 file.Delete();
             }
 
             foreach (DirectoryInfo subDirectory in directory.GetDirectories())
             {
-                if (subDirectory.Name == ".git") continue;
+                if (subDirectory.Name == ".git")
+                {
+                    continue;
+                }
+
                 subDirectory.Delete(true);
             }
         }
@@ -94,10 +102,10 @@ namespace Flightbook.Generator.Export
             // If copying subdirectories, copy them and their contents to new location.
             if (copySubDirs)
             {
-                foreach (DirectoryInfo subdir in dirs)
+                foreach (DirectoryInfo subDir in dirs)
                 {
-                    string tempPath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, tempPath, copySubDirs);
+                    string tempPath = Path.Combine(destDirName, subDir.Name);
+                    DirectoryCopy(subDir.FullName, tempPath, true);
                 }
             }
         }
