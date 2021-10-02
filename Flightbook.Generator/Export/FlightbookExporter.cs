@@ -137,6 +137,7 @@ namespace Flightbook.Generator.Export
             CopyIfExists(configDir, "icon.png", outputDir, @"public\icon.png");
             CopyIfExists(configDir, "icon.svg", outputDir, @"public\icon.svg");
             CopyIfExists(configDir, "logo.svg", outputDir, @"public\logo.svg");
+            CopyIfExists(configDir, "home.md", outputDir, @"public\home.md");
 
             if (Directory.Exists(Path.Join(configDir, "aircrafts")))
             {
