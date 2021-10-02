@@ -67,12 +67,17 @@ namespace Flightbook.Generator.Import
 
             TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
 
+            LogEntry logEntry = GetRelevantLogEntry(logEntries, trackStartTime ?? DateTime.Now);
+
             return new GpxTrack
             {
                 Date = date,
                 DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
                 Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime ?? DateTime.Now),
+                From = logEntry.From,
+                To = logEntry.To,
+                Via = logEntry.Via,
                 Youtube = tracklogExtra?.Youtube,
                 Blogpost = tracklogExtra?.Blogpost,
                 FacebookPost = tracklogExtra?.FacebookPost,
@@ -81,6 +86,28 @@ namespace Flightbook.Generator.Import
                 GeoJson = lineString,
                 SpeedElevationPoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList()
             };
+        }
+
+        private LogEntry GetRelevantLogEntry(List<LogEntry> logEntries, DateTime trackStartTime)
+        {
+            List<LogEntry> relevantLogEntries = logEntries.Where(l => l.LogDate.Date == trackStartTime.Date).ToList();
+
+            if (!relevantLogEntries.Any())
+            {
+                return null;
+            }
+
+            if (relevantLogEntries.Count() == 1)
+            {
+                return relevantLogEntries.First();
+            }
+
+            LogEntry mostRelevantLogEntry = relevantLogEntries
+                .OrderBy(l => Math.Abs(
+                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes))
+                .FirstOrDefault();
+
+            return mostRelevantLogEntry ?? null;
         }
 
         private string GetAircraft(List<LogEntry> logEntries, DateTime trackStartTime)

@@ -27,6 +27,7 @@ namespace Flightbook.Generator.Export
                     DateTime = t.DateTime,
                     Name = t.Name,
                     Aircraft = t.Aircraft,
+                    Airports = new[] {t.From, t.To}.Concat(t.Via ?? new string[] { }).ToArray(),
                     Filename = fileName,
                     HasYoutube = !string.IsNullOrEmpty(t.Youtube),
                     HasBlogpost = !string.IsNullOrEmpty(t.Blogpost),
