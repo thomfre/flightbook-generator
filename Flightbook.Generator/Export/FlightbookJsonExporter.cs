@@ -18,7 +18,16 @@ namespace Flightbook.Generator.Export
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
 
-            Models.Flightbook.Flightbook flightbook = new() {ParentPage = configuration.ParentPage?.Length > 0 ? configuration.ParentPage : null, Aircrafts = aircrafts, Airports = airports, Countries = countries, FlightTimeMonths = flightTimeStatistics};
+            Models.Flightbook.Flightbook flightbook = new()
+            {
+                ParentPage = configuration.ParentPage?.Length > 0 ? configuration.ParentPage : null,
+                AirportGallerySearch = configuration.AirportGallerySearch?.Length > 0 ? configuration.AirportGallerySearch : null,
+                AircraftGallerySearch = configuration.AircraftGallerySearch?.Length > 0 ? configuration.AircraftGallerySearch : null,
+                Aircrafts = aircrafts, 
+                Airports = airports, 
+                Countries = countries, 
+                FlightTimeMonths = flightTimeStatistics
+            };
 
             return JsonConvert.SerializeObject(flightbook);
         }

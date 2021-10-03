@@ -6,7 +6,14 @@ namespace Flightbook.Generator.Models.Flightbook
 {
     public class Flightbook
     {
-        public string? ParentPage { get; set; } = null;
+        [CanBeNull]
+        public string ParentPage { get; set; } = null;
+
+        [CanBeNull]
+        public string AirportGallerySearch { get; set; } = null;
+
+        [CanBeNull]
+        public string AircraftGallerySearch { get; set; } = null;
 
         [UsedImplicitly]
         public DateTime GeneratedDate { get; set; } = DateTime.Now;
