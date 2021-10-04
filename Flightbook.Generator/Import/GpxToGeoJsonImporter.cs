@@ -6,14 +6,17 @@ using System.Linq;
 using System.Xml.Serialization;
 using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
+using Flightbook.Generator.Models.OurAirports;
 using Flightbook.Generator.Models.Tracklogs;
 using GeoJSON.Net.Geometry;
+using GeoTimeZone;
+using TimeZoneConverter;
 
 namespace Flightbook.Generator.Import
 {
     internal class GpxToGeoJsonImporter : IGpxToGeoJsonImporter
     {
-        public List<GpxTrack> SearchAndImport(List<LogEntry> logEntries, TracklogExtra[] tracklogExtras)
+        public List<GpxTrack> SearchAndImport(List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
         {
             string gpxPath = Path.Join(Directory.GetCurrentDirectory(), "config", "Gpx");
             if (!Directory.Exists(gpxPath))
@@ -25,10 +28,10 @@ namespace Flightbook.Generator.Import
             List<FileInfo> files = configDirectory.GetFiles()
                 .Where(f => f.Extension.Equals(".Gpx", StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-            return files.Select(file => Convert(file.FullName, logEntries, tracklogExtras)).ToList();
+            return files.Select(file => Convert(file.FullName, logEntries, tracklogExtras, worldAirports)).ToList();
         }
 
-        private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras)
+        private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
         {
             XmlSerializer xmlSerializer = new(typeof(Gpx));
             using TextReader reader = new StringReader(File.ReadAllText(gpxPath));
@@ -67,14 +70,14 @@ namespace Flightbook.Generator.Import
 
             TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
 
-            LogEntry logEntry = GetRelevantLogEntry(logEntries, trackStartTime ?? DateTime.Now);
+            LogEntry logEntry = GetRelevantLogEntry(logEntries, trackStartTime ?? DateTime.Now, worldAirports);
 
             return new GpxTrack
             {
                 Date = date,
                 DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
-                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime ?? DateTime.Now),
+                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime ?? DateTime.Now, logEntry),
                 From = logEntry.From,
                 To = logEntry.To,
                 Via = logEntry.Via,
@@ -88,7 +91,7 @@ namespace Flightbook.Generator.Import
             };
         }
 
-        private LogEntry GetRelevantLogEntry(List<LogEntry> logEntries, DateTime trackStartTime)
+        private LogEntry GetRelevantLogEntry(IEnumerable<LogEntry> logEntries, DateTime trackStartTime, List<AirportInfo> worldAirports)
         {
             List<LogEntry> relevantLogEntries = logEntries.Where(l => l.LogDate.Date == trackStartTime.Date).ToList();
 
@@ -97,20 +100,53 @@ namespace Flightbook.Generator.Import
                 return null;
             }
 
-            if (relevantLogEntries.Count() == 1)
+            if (relevantLogEntries.Count == 1)
             {
                 return relevantLogEntries.First();
             }
 
             LogEntry mostRelevantLogEntry = relevantLogEntries
-                .OrderBy(l => Math.Abs(
-                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes))
+                .OrderBy(l => Math.Abs((GetLogTime(l.LogDate, l.Departure, l.From, worldAirports) - trackStartTime).TotalMinutes))
                 .FirstOrDefault();
 
-            return mostRelevantLogEntry ?? null;
+            return mostRelevantLogEntry;
         }
 
-        private string GetAircraft(List<LogEntry> logEntries, DateTime trackStartTime)
+        private static DateTime GetLogTime(DateTime logDate, string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)
+        {
+            return DateTime.Parse($"{logDate.Date.ToShortDateString()} {departureTime.Split(" ").FirstOrDefault()}{GetTimeZoneOffset(departureTime, fromAirport, worldAirports)}")
+                .ToUniversalTime();
+        }
+
+        private static string GetTimeZoneOffset(string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)
+        {
+            string timeType = departureTime.Split(" ").LastOrDefault()?.ToUpperInvariant().Trim();
+
+            if (string.IsNullOrEmpty(timeType) || timeType is "Z" or "ZULU" or "UTC")
+            {
+                return "Z";
+            }
+
+            AirportInfo airport = worldAirports.FirstOrDefault(a => a.IcaoCode == fromAirport);
+
+            if (airport?.Latitude == null || airport?.Longitude == null)
+            {
+                return "Z";
+            }
+
+            if (timeType != "LOCAL")
+            {
+                return "Z";
+            }
+
+            string ianaZone = TimeZoneLookup.GetTimeZone((double) airport.Latitude, (double) airport.Longitude).Result;
+            TimeZoneInfo timezone = TZConvert.GetTimeZoneInfo(ianaZone);
+            DateTimeOffset convertedTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timezone);
+
+            return $"{(convertedTime.Offset.TotalMinutes < 0 ? "" : "+")}{convertedTime.Offset}";
+        }
+
+        private static string GetAircraft(IEnumerable<LogEntry> logEntries, DateTime trackStartTime, LogEntry mostRelevantLogEntry)
         {
             List<LogEntry> relevantLogEntries = logEntries.Where(l => l.LogDate.Date == trackStartTime.Date).ToList();
 
@@ -128,11 +164,6 @@ namespace Flightbook.Generator.Import
             {
                 return relevantLogEntries.First().AircraftRegistration;
             }
-
-            LogEntry mostRelevantLogEntry = relevantLogEntries
-                .OrderBy(l => Math.Abs(
-                    (DateTime.Parse($"{l.LogDate.Date.ToShortDateString()} {l.Departure.Split(" ").FirstOrDefault()}") - trackStartTime).Minutes))
-                .FirstOrDefault();
 
             return mostRelevantLogEntry?.AircraftRegistration ?? "";
         }
