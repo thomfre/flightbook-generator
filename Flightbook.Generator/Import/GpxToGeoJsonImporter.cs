@@ -114,11 +114,11 @@ namespace Flightbook.Generator.Import
 
         private static DateTime GetLogTime(DateTime logDate, string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)
         {
-            return DateTime.Parse($"{logDate.Date.ToShortDateString()} {departureTime.Split(" ").FirstOrDefault()}{GetTimeZoneOffset(departureTime, fromAirport, worldAirports)}")
+            return DateTime.Parse($"{logDate.Date.ToShortDateString()} {departureTime.Split(" ").FirstOrDefault()}{GetTimeZoneOffset(logDate, departureTime, fromAirport, worldAirports)}")
                 .ToUniversalTime();
         }
 
-        private static string GetTimeZoneOffset(string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)
+        private static string GetTimeZoneOffset(DateTime logDate, string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)
         {
             string timeType = departureTime.Split(" ").LastOrDefault()?.ToUpperInvariant().Trim();
 
@@ -129,7 +129,7 @@ namespace Flightbook.Generator.Import
 
             AirportInfo airport = worldAirports.FirstOrDefault(a => a.IcaoCode == fromAirport);
 
-            if (airport?.Latitude == null || airport?.Longitude == null)
+            if (airport?.Latitude == null || airport.Longitude == null)
             {
                 return "Z";
             }
@@ -141,7 +141,7 @@ namespace Flightbook.Generator.Import
 
             string ianaZone = TimeZoneLookup.GetTimeZone((double) airport.Latitude, (double) airport.Longitude).Result;
             TimeZoneInfo timezone = TZConvert.GetTimeZoneInfo(ianaZone);
-            DateTimeOffset convertedTime = TimeZoneInfo.ConvertTime(DateTimeOffset.UtcNow, timezone);
+            DateTimeOffset convertedTime = TimeZoneInfo.ConvertTime(new DateTime(logDate.Year, logDate.Month, logDate.Day, 12, 00, 00), timezone);
 
             return $"{(convertedTime.Offset.TotalMinutes < 0 ? "" : "+")}{convertedTime.Offset}";
         }
