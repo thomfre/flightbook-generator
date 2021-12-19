@@ -5,6 +5,7 @@ using Flightbook.Generator.Import;
 using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.OurAirports;
+using Flightbook.Generator.Models.Registrations;
 using Flightbook.Generator.Models.Tracklogs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
@@ -21,15 +22,17 @@ namespace Flightbook.Generator
         private readonly IGpxToGeoJsonImporter _gpxToGeoJsonImporter;
         private readonly ILogbookCsvImporter _logbookCsvImporter;
         private readonly IOurAirportsImporter _ourAirportsImporter;
+        private readonly IRegistrationsImporter _registrationsImporter;
         private readonly ITracklogExporter _tracklogExporter;
 
-        public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IFlightbookJsonExporter flightbookJsonExporter, IFlightbookExporter flightbookExporter,
+        public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter, IFlightbookExporter flightbookExporter,
             IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter)
         {
             _console = console;
             _configurationLoader = configurationLoader;
             _logbookCsvImporter = logbookCsvImporter;
             _ourAirportsImporter = ourAirportsImporter;
+            _registrationsImporter = registrationsImporter;
             _flightbookJsonExporter = flightbookJsonExporter;
             _flightbookExporter = flightbookExporter;
             _gpxToGeoJsonImporter = gpxToGeoJsonImporter;
@@ -70,8 +73,12 @@ namespace Flightbook.Generator
             List<CountryInfo> worldCountries = _ourAirportsImporter.GetCountries();
             _console.WriteLine($"Got information for {worldAirports.Count} airports and {worldCountries.Count} countries", Colors.txtSuccess);
 
+            _console.WriteLine("Reading aircraft registration prefixes", Colors.txtInfo);
+            List<RegistrationPrefix> registrationPrefixes = _registrationsImporter.GetRegistrationPrefixes();
+            _console.WriteLine($"Got information for {registrationPrefixes.Count} prefixes", Colors.txtSuccess);
+
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, configuration);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, registrationPrefixes, configuration);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Converting GPX files", Colors.txtInfo);

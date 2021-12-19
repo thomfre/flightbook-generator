@@ -5,15 +5,16 @@ using System.Linq;
 using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.OurAirports;
+using Flightbook.Generator.Models.Registrations;
 using Newtonsoft.Json;
 
 namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, Config configuration)
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegistrationPrefix> registrationPrefixes, Config configuration)
         {
-            List<Aircraft> aircrafts = ExtractAircrafts(logEntries);
+            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
@@ -23,16 +24,16 @@ namespace Flightbook.Generator.Export
                 ParentPage = configuration.ParentPage?.Length > 0 ? configuration.ParentPage : null,
                 AirportGallerySearch = configuration.AirportGallerySearch?.Length > 0 ? configuration.AirportGallerySearch : null,
                 AircraftGallerySearch = configuration.AircraftGallerySearch?.Length > 0 ? configuration.AircraftGallerySearch : null,
-                Aircrafts = aircrafts, 
-                Airports = airports, 
-                Countries = countries, 
+                Aircrafts = aircrafts,
+                Airports = airports,
+                Countries = countries,
                 FlightTimeMonths = flightTimeStatistics
             };
 
             return JsonConvert.SerializeObject(flightbook);
         }
 
-        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries)
+        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes)
         {
             List<Aircraft> aircrafts = logEntries.Select(l => l.AircraftRegistration).Distinct().Select(a => new Aircraft {Registration = a}).ToList();
 
@@ -40,6 +41,9 @@ namespace Flightbook.Generator.Export
             {
                 LogEntry[] filteredLogEntries = logEntries.Where(l => l.AircraftRegistration == aircraft.Registration).ToArray();
 
+                string prefix = aircraft.Registration.Split("-")[0] + "-";
+
+                aircraft.IsoCountry = registrationPrefixes.FirstOrDefault(r => r.Prefix == prefix)?.CountryCode ?? "ZZ";
                 aircraft.FirstFlown = filteredLogEntries.Select(l => l.LogDate).Min();
                 aircraft.LastFlown = filteredLogEntries.Select(l => l.LogDate).Max();
                 aircraft.Type = filteredLogEntries.Select(l => l.AircraftType).First();
