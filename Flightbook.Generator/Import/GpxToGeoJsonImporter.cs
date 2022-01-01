@@ -42,8 +42,9 @@ namespace Flightbook.Generator.Import
                 return null;
             }
 
-            IEnumerable<Position> positions = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points
-                .Select(p => new Position(p.Latitude.ToString(CultureInfo.InvariantCulture), p.Longitude.ToString(CultureInfo.InvariantCulture), p.Elevation.ToString(CultureInfo.InvariantCulture)));
+            Gpx.TrackPoint[] trackpoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points;
+
+            IEnumerable<Position> positions = trackpoints?.Select(p => new Position(p.Latitude.ToString(CultureInfo.InvariantCulture), p.Longitude.ToString(CultureInfo.InvariantCulture), p.Elevation.ToString(CultureInfo.InvariantCulture)));
 
             LineString lineString = new(positions);
 
@@ -72,6 +73,8 @@ namespace Flightbook.Generator.Import
 
             LogEntry logEntry = GetRelevantLogEntry(logEntries, trackStartTime ?? DateTime.Now, worldAirports);
 
+            List<SpeedElevationPoint> speedElevationPoints = trackpoints?.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList();
+
             return new GpxTrack
             {
                 Date = date,
@@ -85,9 +88,13 @@ namespace Flightbook.Generator.Import
                 Blogpost = tracklogExtra?.Blogpost,
                 FacebookPost = tracklogExtra?.FacebookPost,
                 Gallery = tracklogExtra?.Gallery,
+                AltitudeMax = speedElevationPoints?.Max(p => (int) p.Elevation) ?? 0,
+                AltitudeAverage = speedElevationPoints != null ? (int) speedElevationPoints?.Average(p => p.Elevation) : 0,
+                SpeedMax = speedElevationPoints?.Max(p => (int) p.Speed) ?? 0,
+                SpeedAverage = speedElevationPoints != null ? (int) speedElevationPoints?.Average(p => p.Speed) : 0,
                 TotalDistance = totalDistance,
                 GeoJson = lineString,
-                SpeedElevationPoints = gpx.Tracks?.FirstOrDefault()?.Segments?.FirstOrDefault()?.Points.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList()
+                SpeedElevationPoints = speedElevationPoints
             };
         }
 

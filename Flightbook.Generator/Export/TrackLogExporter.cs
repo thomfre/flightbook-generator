@@ -21,6 +21,8 @@ namespace Flightbook.Generator.Export
                     fileName = $"{t.Date}-{iterator++}.json";
                 }
 
+                t.Filename = fileName.Split(".").First();
+
                 trackList.Tracks.Add(new GpxTrackInfo
                 {
                     Date = t.Date,

@@ -6,18 +6,21 @@ using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.OurAirports;
 using Flightbook.Generator.Models.Registrations;
+using Flightbook.Generator.Models.Tracklogs;
 using Newtonsoft.Json;
 
 namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegistrationPrefix> registrationPrefixes, Config configuration)
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegistrationPrefix> registrationPrefixes, List<GpxTrack> trackLogs,
+            Config configuration)
         {
             List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
+            List<FlightStatistics> flightStatistics = GetFlightStatistics(trackLogs);
 
             Models.Flightbook.Flightbook flightbook = new()
             {
@@ -27,7 +30,8 @@ namespace Flightbook.Generator.Export
                 Aircrafts = aircrafts,
                 Airports = airports,
                 Countries = countries,
-                FlightTimeMonths = flightTimeStatistics
+                FlightTimeMonths = flightTimeStatistics,
+                FlightStatistics = flightStatistics
             };
 
             return JsonConvert.SerializeObject(flightbook);
@@ -158,6 +162,52 @@ namespace Flightbook.Generator.Export
             }
 
             return months;
+        }
+
+        private List<FlightStatistics> GetFlightStatistics(List<GpxTrack> trackLogs)
+        {
+            int startYear = trackLogs.Select(l => l.DateTime).Min().Year;
+            int endYear = trackLogs.Select(l => l.DateTime).Max().Year;
+
+            List<FlightStatistics> statistics = new()
+            {
+                new FlightStatistics
+                {
+                    AltitudeMax = trackLogs.Max(t => t.AltitudeMax),
+                    AltitudeMaxFlight = trackLogs.OrderByDescending(t => t.AltitudeMax).Select(t => t.Filename).FirstOrDefault(),
+                    AltitudeAverage = (int) trackLogs.Average(t => t.AltitudeMax),
+                    SpeedMax = trackLogs.Max(t => t.SpeedMax),
+                    SpeedMaxFlight = trackLogs.OrderByDescending(t => t.SpeedMax).Select(t => t.Filename).FirstOrDefault(),
+                    SpeedAverage = (int) trackLogs.Average(t => t.SpeedMax),
+                    DistanceTotal = trackLogs.Sum(t => t.TotalDistance),
+                    DistanceMax = trackLogs.Max(t => t.TotalDistance),
+                    DistanceMaxFlight = trackLogs.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
+                    DistanceAverage = trackLogs.Average(t => t.TotalDistance)
+                }
+            };
+
+
+            for (int year = startYear; year <= endYear; year++)
+            {
+                List<GpxTrack> filteredTracks = trackLogs.Where(l => l.DateTime.Year == year).ToList();
+
+                statistics.Add(new FlightStatistics
+                {
+                    Year = year,
+                    AltitudeMax = filteredTracks.Max(t => t.AltitudeMax),
+                    AltitudeMaxFlight = filteredTracks.OrderByDescending(t => t.AltitudeMax).Select(t => t.Filename).FirstOrDefault(),
+                    AltitudeAverage = (int) filteredTracks.Average(t => t.AltitudeMax),
+                    SpeedMax = filteredTracks.Max(t => t.SpeedMax),
+                    SpeedMaxFlight = filteredTracks.OrderByDescending(t => t.SpeedMax).Select(t => t.Filename).FirstOrDefault(),
+                    SpeedAverage = (int) filteredTracks.Average(t => t.SpeedMax),
+                    DistanceTotal = filteredTracks.Sum(t => t.TotalDistance),
+                    DistanceMax = filteredTracks.Max(t => t.TotalDistance),
+                    DistanceMaxFlight = filteredTracks.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
+                    DistanceAverage = filteredTracks.Average(t => t.TotalDistance)
+                });
+            }
+
+            return statistics;
         }
     }
 }

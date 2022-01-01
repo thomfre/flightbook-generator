@@ -77,10 +77,6 @@ namespace Flightbook.Generator
             List<RegistrationPrefix> registrationPrefixes = _registrationsImporter.GetRegistrationPrefixes();
             _console.WriteLine($"Got information for {registrationPrefixes.Count} prefixes", Colors.txtSuccess);
 
-            _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, registrationPrefixes, configuration);
-            _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
-
             _console.WriteLine("Converting GPX files", Colors.txtInfo);
             List<GpxTrack> trackLogs = _gpxToGeoJsonImporter.SearchAndImport(logEntries, configuration.TracklogExtras, worldAirports);
             _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
@@ -89,9 +85,13 @@ namespace Flightbook.Generator
             (string trackLogListJson, Dictionary<string, string> trackLogFileJson) = _tracklogExporter.CreateTracklogFiles(trackLogs);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
+            _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, registrationPrefixes, trackLogs, configuration);
+            _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
+
             _console.WriteLine("Exporting airports to be collected", Colors.txtInfo);
             string airportsToCollect = _airportExporter.ExportToJson(worldAirports, configuration.CollectingAirportsFromCountries);
-            _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
+            _console.WriteLine($"Exported airports", Colors.txtSuccess);
 
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
             _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics);

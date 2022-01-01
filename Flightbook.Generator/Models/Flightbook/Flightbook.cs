@@ -22,5 +22,6 @@ namespace Flightbook.Generator.Models.Flightbook
         public List<Airport> Airports { get; set; }
         public List<Country> Countries { get; set; }
         public List<FlightTimeMonth> FlightTimeMonths { get; set; }
+        public List<FlightStatistics> FlightStatistics { get; set; }
     }
 }
