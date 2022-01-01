@@ -140,8 +140,8 @@ namespace Flightbook.Generator.Export
 
         private List<FlightTimeMonth> GetFlightTimeStatistics(List<LogEntry> logEntries)
         {
-            DateTime startDate = logEntries.Select(l => l.LogDate).Min();
-            DateTime endOfMonth = new(DateTime.Now.Year, DateTime.Now.Month, DateTime.DaysInMonth(DateTime.Now.Year, DateTime.Now.Month));
+            DateTime startDate = logEntries.Min(l => l.LogDate);
+            DateTime endOfMonth = logEntries.Max(l => l.LogDate);
 
             List<FlightTimeMonth> months = new();
 
@@ -161,7 +161,7 @@ namespace Flightbook.Generator.Export
                 startDate = startDate.AddMonths(1);
             }
 
-            return months.Where(m => m.NumberOfFlights > 0).ToList();
+            return months;
         }
 
         private List<FlightStatistics> GetFlightStatistics(List<GpxTrack> trackLogs)
