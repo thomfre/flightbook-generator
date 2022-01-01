@@ -85,6 +85,7 @@ namespace Flightbook.Generator.Export
                 airport.FirstVisited = filteredLogEntries.Select(l => l.LogDate).Min();
                 airport.LastVisited = filteredLogEntries.Select(l => l.LogDate).Max();
                 airport.DistinctVisitDates = filteredLogEntries.Select(l => l.LogDate).Distinct().Count();
+                airport.TotalFlights = filteredLogEntries.Length;
                 airport.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 airport.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 airport.AsFrom = filteredLogEntries.Any(l => l.From == airport.Icao);
