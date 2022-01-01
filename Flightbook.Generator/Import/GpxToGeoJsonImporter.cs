@@ -84,6 +84,7 @@ namespace Flightbook.Generator.Import
                 From = logEntry.From,
                 To = logEntry.To,
                 Via = logEntry.Via,
+                AsPic = logEntry.PicMinutes > 0,
                 Youtube = tracklogExtra?.Youtube,
                 Blogpost = tracklogExtra?.Blogpost,
                 FacebookPost = tracklogExtra?.FacebookPost,

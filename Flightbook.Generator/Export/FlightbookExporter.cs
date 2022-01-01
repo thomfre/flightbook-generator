@@ -46,7 +46,7 @@ namespace Flightbook.Generator.Export
 
             foreach (DirectoryInfo subDirectory in directory.GetDirectories())
             {
-                if (subDirectory.Name == ".git")
+                if (subDirectory.Name is ".git" or "node_modules")
                 {
                     continue;
                 }

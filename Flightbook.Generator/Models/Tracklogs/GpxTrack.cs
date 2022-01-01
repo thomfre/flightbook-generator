@@ -18,6 +18,7 @@ namespace Flightbook.Generator.Models.Tracklogs
         public string From { get; set; }
         public string To { get; set; }
         public string[] Via { get; set; }
+        public bool AsPic { get; set; }
         public string Youtube { get; set; }
         public string Blogpost { get; set; }
         public string FacebookPost { get; set; }

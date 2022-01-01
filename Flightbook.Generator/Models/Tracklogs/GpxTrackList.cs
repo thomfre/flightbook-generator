@@ -20,6 +20,7 @@ namespace Flightbook.Generator.Models.Tracklogs
         public string Name { get; set; }
         public string Aircraft { get; set; }
         public string[] Airports { get; set; }
+        public bool AsPic { get; set; }
         public bool HasYoutube { get; set; }
         public bool HasBlogpost { get; set; }
         public bool HasFacebookPost { get; set; }
