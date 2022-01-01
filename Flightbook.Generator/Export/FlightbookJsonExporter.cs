@@ -161,7 +161,7 @@ namespace Flightbook.Generator.Export
                 startDate = startDate.AddMonths(1);
             }
 
-            return months;
+            return months.Where(m => m.NumberOfFlights > 0).ToList();
         }
 
         private List<FlightStatistics> GetFlightStatistics(List<GpxTrack> trackLogs)
