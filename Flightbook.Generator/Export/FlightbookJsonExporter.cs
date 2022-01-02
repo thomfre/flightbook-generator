@@ -51,7 +51,9 @@ namespace Flightbook.Generator.Export
                 aircraft.FirstFlown = filteredLogEntries.Select(l => l.LogDate).Min();
                 aircraft.LastFlown = filteredLogEntries.Select(l => l.LogDate).Max();
                 aircraft.Type = filteredLogEntries.Select(l => l.AircraftType).First();
+                aircraft.DistinctFlightDates = filteredLogEntries.Select(l => l.LogDate).Distinct().Count();
                 aircraft.NumberOfFlights = filteredLogEntries.Length;
+                aircraft.NumberOfAirports = filteredLogEntries.SelectMany(l => new List<string> {l.From, l.To}.Concat(l.Via ?? new string[0])).Distinct().Count();
                 aircraft.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 aircraft.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 aircraft.Picture = GetAircraftPicture(aircraft.Registration);
@@ -86,6 +88,7 @@ namespace Flightbook.Generator.Export
                 airport.LastVisited = filteredLogEntries.Select(l => l.LogDate).Max();
                 airport.DistinctVisitDates = filteredLogEntries.Select(l => l.LogDate).Distinct().Count();
                 airport.TotalFlights = filteredLogEntries.Length;
+                airport.Aircrafts = filteredLogEntries.Select(l => l.AircraftRegistration).Distinct().ToArray();
                 airport.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 airport.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 airport.AsFrom = filteredLogEntries.Any(l => l.From == airport.Icao);

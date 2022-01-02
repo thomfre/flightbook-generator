@@ -17,6 +17,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public bool AsVia { get; set; }
         public int DistinctVisitDates { get; set; }
         public int TotalFlights { get; set; }
+        public string[] Aircrafts { get; set; }
         public string Picture { get; set; }
     }
 }
