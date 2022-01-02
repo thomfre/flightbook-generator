@@ -8,7 +8,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public string Icao { get; set; }
         public string Iata { get; set; }
         public string IsoCountry { get; set; }
-        public string IsoRegion { get; set; }
+        public string Region { get; set; }
         public decimal[] Coordinates { get; set; }
         public int? FieldElevation { get; set; }
         public string Type { get; set; }

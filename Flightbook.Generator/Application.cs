@@ -71,7 +71,8 @@ namespace Flightbook.Generator
             List<AirportInfo> worldAirports = _ourAirportsImporter.GetAirports();
             List<RunwayInfo> worldRunways = _ourAirportsImporter.GetRunways();
             List<CountryInfo> worldCountries = _ourAirportsImporter.GetCountries();
-            _console.WriteLine($"Got information for {worldAirports.Count} airports and {worldCountries.Count} countries", Colors.txtSuccess);
+            List<RegionInfo> worldRegions = _ourAirportsImporter.GetRegions();
+            _console.WriteLine($"Got information for {worldAirports.Count} airports and {worldCountries.Count} countries with {worldRegions.Count} regions", Colors.txtSuccess);
 
             _console.WriteLine("Reading aircraft registration prefixes", Colors.txtInfo);
             List<RegistrationPrefix> registrationPrefixes = _registrationsImporter.GetRegistrationPrefixes();
@@ -86,7 +87,7 @@ namespace Flightbook.Generator
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, registrationPrefixes, trackLogs, configuration);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, trackLogs, configuration);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting airports to be collected", Colors.txtInfo);

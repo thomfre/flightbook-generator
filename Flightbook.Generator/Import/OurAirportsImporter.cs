@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using CsvHelper;
 using Flightbook.Generator.Models.OurAirports;
+using RegionInfo = Flightbook.Generator.Models.OurAirports.RegionInfo;
 
 namespace Flightbook.Generator.Import
 {
@@ -31,6 +32,14 @@ namespace Flightbook.Generator.Import
             using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
 
             return csv.GetRecords<CountryInfo>().ToList();
+        }
+
+        public List<RegionInfo> GetRegions()
+        {
+            using StreamReader reader = new(@"Data\regions.csv");
+            using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
+
+            return csv.GetRecords<RegionInfo>().ToList();
         }
     }
 }

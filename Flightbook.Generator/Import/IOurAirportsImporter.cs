@@ -8,5 +8,6 @@ namespace Flightbook.Generator.Import
         List<AirportInfo> GetAirports();
         List<RunwayInfo> GetRunways();
         List<CountryInfo> GetCountries();
+        List<RegionInfo> GetRegions();
     }
 }

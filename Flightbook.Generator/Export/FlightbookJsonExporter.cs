@@ -13,11 +13,11 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegistrationPrefix> registrationPrefixes, List<GpxTrack> trackLogs,
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes, List<GpxTrack> trackLogs,
             Config configuration)
         {
             List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes);
-            List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways);
+            List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways, worldRegions);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
             List<FlightStatistics> flightStatistics = GetFlightStatistics(trackLogs);
@@ -72,7 +72,7 @@ namespace Flightbook.Generator.Export
             return $"/aircrafts/{registration.ToLowerInvariant()}.jpg";
         }
 
-        private List<Airport> ExtractAirports(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways)
+        private List<Airport> ExtractAirports(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<RegionInfo> worldRegions)
         {
             List<Airport> airports = logEntries.Select(l => l.From)
                 .Concat(logEntries.Select(l => l.To))
@@ -108,7 +108,7 @@ namespace Flightbook.Generator.Export
                 airport.Type = GetAirportType(airportInfo.Type);
                 airport.Wikipedia = airportInfo.WikipediaLink;
                 airport.IsoCountry = airportInfo.IsoCountry;
-                airport.IsoRegion = airportInfo.IsoRegion;
+                airport.Region = worldRegions.Where(r => r.Code == airportInfo.IsoRegion).Select(r => r.Name).FirstOrDefault();
                 airport.FieldElevation = airportInfo.FieldElevation;
                 if (airportInfo.Latitude.HasValue && airportInfo.Longitude.HasValue)
                 {
