@@ -7,6 +7,10 @@ namespace Flightbook.Generator.Models.Flightbook
         public string Registration { get; set; }
         public string IsoCountry { get; set; }
         public string Type { get; set; }
+        public string Class { get; set; }
+        public string Manufacturer { get; set; }
+        public string Model { get; set; }
+        public int? ManufacturedYear { get; set; }
         public DateTime FirstFlown { get; set; }
         public DateTime LastFlown { get; set; }
         public int DistinctFlightDates { get; set; }

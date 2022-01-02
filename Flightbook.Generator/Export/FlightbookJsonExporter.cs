@@ -13,10 +13,10 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes, List<GpxTrack> trackLogs,
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, List<GpxTrack> trackLogs,
             Config configuration)
         {
-            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes);
+            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes, aircraftInformations);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways, worldRegions);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
@@ -38,7 +38,7 @@ namespace Flightbook.Generator.Export
             return JsonConvert.SerializeObject(flightbook);
         }
 
-        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes)
+        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations)
         {
             List<Aircraft> aircrafts = logEntries.Select(l => l.AircraftRegistration).Distinct().Select(a => new Aircraft {Registration = a}).ToList();
 
@@ -58,6 +58,16 @@ namespace Flightbook.Generator.Export
                 aircraft.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 aircraft.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 aircraft.Picture = GetAircraftPicture(aircraft.Registration);
+
+                AircraftInformation aircraftInformation = aircraftInformations.FirstOrDefault(a => a.Registration == aircraft.Registration);
+
+                if (aircraftInformation != default(AircraftInformation))
+                {
+                    aircraft.Class = aircraftInformation.Class;
+                    aircraft.Manufacturer = aircraftInformation.Manufacturer;
+                    aircraft.Model = aircraftInformation.Model;
+                    aircraft.ManufacturedYear = aircraftInformation.ManufacturedYear;
+                }
             });
 
             return aircrafts;

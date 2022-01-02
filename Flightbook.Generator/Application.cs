@@ -87,7 +87,7 @@ namespace Flightbook.Generator
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, trackLogs, configuration);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, configuration.Aircrafts, trackLogs, configuration);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting airports to be collected", Colors.txtInfo);
