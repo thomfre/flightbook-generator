@@ -104,7 +104,12 @@ namespace Flightbook.Generator.Export
                 }
 
                 airport.Name = airportInfo.Name;
+                airport.Iata = airportInfo.IataCode;
+                airport.Type = GetAirportType(airportInfo.Type);
+                airport.Wikipedia = airportInfo.WikipediaLink;
                 airport.IsoCountry = airportInfo.IsoCountry;
+                airport.IsoRegion = airportInfo.IsoRegion;
+                airport.FieldElevation = airportInfo.FieldElevation;
                 if (airportInfo.Latitude.HasValue && airportInfo.Longitude.HasValue)
                 {
                     airport.Coordinates = new[] {airportInfo.Latitude.Value, airportInfo.Longitude.Value};
@@ -122,6 +127,27 @@ namespace Flightbook.Generator.Export
             }
 
             return $"/airports/{icao.ToLowerInvariant()}.jpg";
+        }
+
+        private string GetAirportType(string airportType)
+        {
+            switch (airportType)
+            {
+                case "large_airport":
+                    return "Large airport";
+                case "medium_airport":
+                    return "Medium airport";
+                case "small_airport":
+                    return "Small airport";
+                case "seaplane_base":
+                    return "Seaplane base";
+                case "heliport":
+                    return "Heliport";
+                case "closed":
+                    return "Closed airport";
+                default:
+                    return "Unknown";
+            }
         }
 
         private List<Country> ExtractCountries(List<Airport> airports, List<CountryInfo> worldCountries)

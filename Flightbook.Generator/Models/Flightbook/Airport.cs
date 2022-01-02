@@ -6,8 +6,13 @@ namespace Flightbook.Generator.Models.Flightbook
     {
         public string Name { get; set; }
         public string Icao { get; set; }
+        public string Iata { get; set; }
         public string IsoCountry { get; set; }
+        public string IsoRegion { get; set; }
         public decimal[] Coordinates { get; set; }
+        public int? FieldElevation { get; set; }
+        public string Type { get; set; }
+        public string Wikipedia { get; set; }
         public DateTime FirstVisited { get; set; }
         public DateTime LastVisited { get; set; }
         public bool AsDual { get; set; }
