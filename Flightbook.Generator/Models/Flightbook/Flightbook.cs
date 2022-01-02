@@ -16,7 +16,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public string AircraftGallerySearch { get; set; } = null;
 
         [CanBeNull]
-        public string FlickrUserId { get; set; } = null;
+        public string FlickrProxyUrl { get; set; } = null;
 
         [UsedImplicitly]
         public DateTime GeneratedDate { get; set; } = DateTime.Now;

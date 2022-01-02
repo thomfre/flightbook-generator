@@ -5,7 +5,7 @@
         public string ParentPage { get; set; }
         public string AirportGallerySearch { get; set; }
         public string AircraftGallerySearch { get; set; }
-        public string FlickrUserId { get; set; }
+        public string FlickrProxyUrl { get; set; }
         public string[] CollectingAirportsFromCountries { get; set; }
         public string CfAnalytics { get; set; }
         public TracklogExtra[] TracklogExtras { get; set; }

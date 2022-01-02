@@ -27,7 +27,7 @@ namespace Flightbook.Generator.Export
                 ParentPage = configuration.ParentPage?.Length > 0 ? configuration.ParentPage : null,
                 AirportGallerySearch = configuration.AirportGallerySearch?.Length > 0 ? configuration.AirportGallerySearch : null,
                 AircraftGallerySearch = configuration.AircraftGallerySearch?.Length > 0 ? configuration.AircraftGallerySearch : null,
-                FlickrUserId = configuration.FlickrUserId?.Length > 0 ? configuration.FlickrUserId : null,
+                FlickrProxyUrl = configuration.FlickrProxyUrl?.Length > 0 ? configuration.FlickrProxyUrl : null,
                 Aircrafts = aircrafts,
                 Airports = airports,
                 Countries = countries,
