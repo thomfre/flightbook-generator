@@ -9,6 +9,7 @@ namespace Flightbook.Generator.Export
 {
     internal interface IFlightbookJsonExporter
     {
-        string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> countries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, List<GpxTrack> trackLogs, Config configuration);
+        string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> countries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes,
+            AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators, List<GpxTrack> trackLogs, Config configuration);
     }
 }

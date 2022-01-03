@@ -13,10 +13,11 @@ namespace Flightbook.Generator.Export
 {
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
-        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, List<GpxTrack> trackLogs,
+        public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes,
+            AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators, List<GpxTrack> trackLogs,
             Config configuration)
         {
-            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes, aircraftInformations);
+            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes, aircraftInformations, aircraftOperators);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways, worldRegions);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
@@ -38,7 +39,7 @@ namespace Flightbook.Generator.Export
             return JsonConvert.SerializeObject(flightbook);
         }
 
-        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations)
+        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators)
         {
             List<Aircraft> aircrafts = logEntries.Select(l => l.AircraftRegistration).Distinct().Select(a => new Aircraft {Registration = a}).ToList();
 
@@ -67,6 +68,7 @@ namespace Flightbook.Generator.Export
                     aircraft.Manufacturer = aircraftInformation.Manufacturer;
                     aircraft.Model = aircraftInformation.Model;
                     aircraft.ManufacturedYear = aircraftInformation.ManufacturedYear;
+                    aircraft.Operator = GetAircraftOperator(aircraftInformation.Operator, aircraftOperators);
                 }
             });
 
@@ -75,12 +77,25 @@ namespace Flightbook.Generator.Export
 
         private string GetAircraftPicture(string registration)
         {
-            if (!File.Exists($@"config\aircrafts\{registration.ToLowerInvariant()}.jpg"))
-            {
-                return null;
-            }
+            return !File.Exists($@"config\aircrafts\{registration.ToLowerInvariant()}.jpg") ? null : $"/aircrafts/{registration.ToLowerInvariant()}.jpg";
+        }
 
-            return $"/aircrafts/{registration.ToLowerInvariant()}.jpg";
+        private Operator GetAircraftOperator(string aircraftOperator, OperatorInformation[] operators)
+        {
+            return string.IsNullOrEmpty(aircraftOperator)
+                ? null
+                : operators
+                    .Where(o => o.Operator == aircraftOperator)
+                    .Select(o => new Operator {Name = o.Operator, Url = o.Url, Picture = GetAircraftOperatorPicture(o.Operator)})
+                    .FirstOrDefault();
+        }
+
+        private string GetAircraftOperatorPicture(string aircraftOperator)
+        {
+            string filename = aircraftOperator.Replace(" ", "-").ToLowerInvariant();
+            filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
+
+            return !File.Exists($@"config\operators\{filename}.png") ? null : $"/operators/{filename}.png";
         }
 
         private List<Airport> ExtractAirports(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<RegionInfo> worldRegions)
@@ -132,12 +147,7 @@ namespace Flightbook.Generator.Export
 
         private string GetAirportPicture(string icao)
         {
-            if (!File.Exists($@"config\airports\{icao.ToLowerInvariant()}.jpg"))
-            {
-                return null;
-            }
-
-            return $"/airports/{icao.ToLowerInvariant()}.jpg";
+            return !File.Exists($@"config\airports\{icao.ToLowerInvariant()}.jpg") ? null : $"/airports/{icao.ToLowerInvariant()}.jpg";
         }
 
         private string GetAirportType(string airportType)

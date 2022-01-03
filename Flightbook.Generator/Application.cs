@@ -25,7 +25,8 @@ namespace Flightbook.Generator
         private readonly IRegistrationsImporter _registrationsImporter;
         private readonly ITracklogExporter _tracklogExporter;
 
-        public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter, IFlightbookExporter flightbookExporter,
+        public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter,
+            IFlightbookExporter flightbookExporter,
             IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter)
         {
             _console = console;
@@ -87,12 +88,12 @@ namespace Flightbook.Generator
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
-            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, configuration.Aircrafts, trackLogs, configuration);
+            string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, configuration.Aircrafts, configuration.Operators, trackLogs, configuration);
             _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting airports to be collected", Colors.txtInfo);
             string airportsToCollect = _airportExporter.ExportToJson(worldAirports, configuration.CollectingAirportsFromCountries);
-            _console.WriteLine($"Exported airports", Colors.txtSuccess);
+            _console.WriteLine("Exported airports", Colors.txtSuccess);
 
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
             _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics);

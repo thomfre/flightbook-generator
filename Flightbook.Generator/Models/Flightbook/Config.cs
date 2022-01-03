@@ -8,8 +8,15 @@
         public string FlickrProxyUrl { get; set; }
         public string[] CollectingAirportsFromCountries { get; set; }
         public string CfAnalytics { get; set; }
+        public OperatorInformation[] Operators { get; set; }
         public AircraftInformation[] Aircrafts { get; set; }
         public TracklogExtra[] TracklogExtras { get; set; }
+    }
+
+    public class OperatorInformation
+    {
+        public string Operator { get; set; }
+        public string Url { get; set; }
     }
 
     public class AircraftInformation
@@ -19,6 +26,7 @@
         public string Manufacturer { get; set; }
         public string Model { get; set; }
         public int? ManufacturedYear { get; set; }
+        public string Operator { get; set; }
     }
 
     public class TracklogExtra

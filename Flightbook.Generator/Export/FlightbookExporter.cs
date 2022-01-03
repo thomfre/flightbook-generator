@@ -152,6 +152,11 @@ namespace Flightbook.Generator.Export
                 DirectoryCopy(Path.Join(configDir, "aircrafts"), Path.Join(outputDir, @"public\aircrafts"), true);
             }
 
+            if (Directory.Exists(Path.Join(configDir, "operators")))
+            {
+                DirectoryCopy(Path.Join(configDir, "operators"), Path.Join(outputDir, @"public\operators"), true);
+            }
+
             if (Directory.Exists(Path.Join(configDir, "airports")))
             {
                 DirectoryCopy(Path.Join(configDir, "airports"), Path.Join(outputDir, @"public\airports"), true);

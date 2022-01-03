@@ -11,6 +11,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public string Manufacturer { get; set; }
         public string Model { get; set; }
         public int? ManufacturedYear { get; set; }
+        public Operator Operator { get; set; }
         public DateTime FirstFlown { get; set; }
         public DateTime LastFlown { get; set; }
         public int DistinctFlightDates { get; set; }
