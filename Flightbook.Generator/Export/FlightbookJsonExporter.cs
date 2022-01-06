@@ -196,7 +196,7 @@ namespace Flightbook.Generator.Export
 
             List<FlightTimeMonth> months = new();
 
-            while (startDate <= endOfMonth)
+            while (startDate.Year <= endOfMonth.Year || startDate.Month <= endOfMonth.Month)
             {
                 List<LogEntry> filteredLogEntries = logEntries.Where(l => l.LogDate.Year == startDate.Year && l.LogDate.Month == startDate.Month).ToList();
 
