@@ -192,11 +192,13 @@ namespace Flightbook.Generator.Export
         private List<FlightTimeMonth> GetFlightTimeStatistics(List<LogEntry> logEntries)
         {
             DateTime startDate = logEntries.Min(l => l.LogDate);
-            DateTime endOfMonth = logEntries.Max(l => l.LogDate);
+            DateTime endDate = logEntries.Max(l => l.LogDate);
+
+            startDate = startDate.AddDays(1 - startDate.Day);
 
             List<FlightTimeMonth> months = new();
 
-            while (startDate.Year <= endOfMonth.Year || startDate.Month <= endOfMonth.Month)
+            while (startDate <= endDate)
             {
                 List<LogEntry> filteredLogEntries = logEntries.Where(l => l.LogDate.Year == startDate.Year && l.LogDate.Month == startDate.Month).ToList();
 
