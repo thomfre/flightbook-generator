@@ -30,6 +30,10 @@ namespace Flightbook.Generator.Import
                 int.TryParse(csv.GetField<string>(headerNames["Day Ldg"]), out int dayLandings);
                 int.TryParse(csv.GetField<string>(headerNames["Night Ldg"]), out int nightLandings);
 
+                if (HoursMinutesToMinutes(csv.GetField<string>(headerNames["Total Flight Time"])) == 0)
+                {
+                    continue;
+                }
 
                 logEntries.Add(new LogEntry
                 {
