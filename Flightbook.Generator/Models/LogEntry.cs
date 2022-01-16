@@ -5,6 +5,7 @@ namespace Flightbook.Generator.Models
     public class LogEntry
     {
         public DateTime LogDate { get; set; }
+        public bool AsPic { get; set; }
         public string From { get; set; }
         public string Departure { get; set; }
         public string To { get; set; }
@@ -16,6 +17,7 @@ namespace Flightbook.Generator.Models
         public int PicMinutes { get; set; }
         public int DualMinutes { get; set; }
         public int InstrumentMinutes { get; set; }
+        public int NightMinutes { get; set; }
         public int DayLandings { get; set; }
         public int NightLandings { get; set; }
     }

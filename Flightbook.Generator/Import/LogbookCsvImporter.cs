@@ -38,6 +38,7 @@ namespace Flightbook.Generator.Import
                 logEntries.Add(new LogEntry
                 {
                     LogDate = csv.GetField<DateTime>(headerNames["Date"]),
+                    AsPic = csv.GetField<string>(headerNames["Holder's Operating Capacity"]) == "PIC",
                     From = csv.GetField<string>(headerNames["Departure"]),
                     Departure = csv.GetField<string>(headerNames["DepartureTime"]),
                     To = csv.GetField<string>(headerNames["Arrival"]),
@@ -49,6 +50,7 @@ namespace Flightbook.Generator.Import
                     PicMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["PIC"])),
                     DualMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Dual Received"])),
                     InstrumentMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Instrument Flying"])),
+                    NightMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Flight time Night"])),
                     DayLandings = dayLandings,
                     NightLandings = nightLandings
                 });
@@ -83,6 +85,7 @@ namespace Flightbook.Generator.Import
         {
             Dictionary<string, string> headerNameMappings = new()
             {
+                {"Holder's Operating Capacity", header.FirstOrDefault(r => r == "Holder's Operating Capacity")},
                 {"Via", header.FirstOrDefault(r => r == "Via")},
                 {"Day Ldg", header.FirstOrDefault(r => r == "Day Ldg")},
                 {"Night Ldg", header.FirstOrDefault(r => r == "Night Ldg")},
@@ -93,6 +96,7 @@ namespace Flightbook.Generator.Import
                 {"ArrivalTime", header.LastOrDefault(r => r is "Time" or "Arrival Time" or "ArrivalTime")},
                 {"Aircraft Registration", header.FirstOrDefault(r => r == "Aircraft Registration")},
                 {"Aircraft Type", header.FirstOrDefault(r => r == "Aircraft Type")},
+                {"Flight time Night", header.FirstOrDefault(r => r == "Flight time Night")},
                 {"Total Flight Time", header.FirstOrDefault(r => r == "Total Flight Time")},
                 {"PIC", header.FirstOrDefault(r => r is "PIC" or "Flight time PIC")},
                 {"Dual Received", header.FirstOrDefault(r => r is "Dual Received" or "Dual" or "Flight time Dual" or "Flight time Dual Received")},
