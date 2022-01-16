@@ -21,7 +21,7 @@ namespace Flightbook.Generator.Export
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways, worldRegions);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
-            List<FlightStatistics> flightStatistics = GetFlightStatistics(trackLogs);
+            List<FlightStatistics> flightStatistics = GetFlightStatistics(logEntries, trackLogs);
 
             Models.Flightbook.Flightbook flightbook = new()
             {
@@ -90,7 +90,7 @@ namespace Flightbook.Generator.Export
                     .FirstOrDefault();
         }
 
-        private string GetAircraftOperatorPicture(string aircraftOperator)
+        private static string GetAircraftOperatorPicture(string aircraftOperator)
         {
             string filename = aircraftOperator.Replace(" ", "-").ToLowerInvariant();
             filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
@@ -222,10 +222,10 @@ namespace Flightbook.Generator.Export
             return months;
         }
 
-        private List<FlightStatistics> GetFlightStatistics(List<GpxTrack> trackLogs)
+        private List<FlightStatistics> GetFlightStatistics(List<LogEntry> logEntries, List<GpxTrack> trackLogs)
         {
-            int startYear = trackLogs.Select(l => l.DateTime).Min().Year;
-            int endYear = trackLogs.Select(l => l.DateTime).Max().Year;
+            int startYear = trackLogs.Min(l => l.DateTime).Year;
+            int endYear = trackLogs.Max(l => l.DateTime).Year;
 
             List<FlightStatistics> statistics = new()
             {
@@ -240,7 +240,15 @@ namespace Flightbook.Generator.Export
                     DistanceTotal = trackLogs.Sum(t => t.TotalDistance),
                     DistanceMax = trackLogs.Max(t => t.TotalDistance),
                     DistanceMaxFlight = trackLogs.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
-                    DistanceAverage = trackLogs.Average(t => t.TotalDistance)
+                    DistanceAverage = trackLogs.Average(t => t.TotalDistance),
+                    FirstFlight = logEntries.Where(l => l.TotalMinutes > 0).Min(l => l.LogDate),
+                    LastFlight = logEntries.Where(l => l.TotalMinutes > 0).Max(l => l.LogDate),
+                    LongestSlump = GetLongestSlump(logEntries),
+                    LongestStreak = logEntries.Where(l => l.TotalMinutes > 0).Select(l => l.LogDate).Distinct().OrderBy(d => d)
+                        .Select((date, i) => new {date, key = date.Subtract(TimeSpan.FromDays(i))})
+                        .GroupBy(tuple => tuple.key, tuple => tuple.date)
+                        .OrderByDescending(x => x.Count())
+                        .Select(x => new DateRange {From = x.First(), To = x.Last(), NumberOfDays = x.Count()}).First()
                 }
             };
 
@@ -248,6 +256,7 @@ namespace Flightbook.Generator.Export
             for (int year = startYear; year <= endYear; year++)
             {
                 List<GpxTrack> filteredTracks = trackLogs.Where(l => l.DateTime.Year == year).ToList();
+                List<LogEntry> filteredLogEntries = logEntries.Where(l => l.LogDate.Year == year).ToList();
 
                 statistics.Add(new FlightStatistics
                 {
@@ -261,11 +270,44 @@ namespace Flightbook.Generator.Export
                     DistanceTotal = filteredTracks.Sum(t => t.TotalDistance),
                     DistanceMax = filteredTracks.Max(t => t.TotalDistance),
                     DistanceMaxFlight = filteredTracks.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
-                    DistanceAverage = filteredTracks.Average(t => t.TotalDistance)
+                    DistanceAverage = filteredTracks.Average(t => t.TotalDistance),
+                    FirstFlight = filteredLogEntries.Where(l => l.TotalMinutes > 0).Min(l => l.LogDate),
+                    LastFlight = filteredLogEntries.Where(l => l.TotalMinutes > 0).Max(l => l.LogDate),
+                    LongestSlump = GetLongestSlump(filteredLogEntries),
+                    LongestStreak = filteredLogEntries.Where(l => l.TotalMinutes > 0).Select(l => l.LogDate).Distinct().OrderBy(d => d)
+                        .Select((date, i) => new { date, key = date.Subtract(TimeSpan.FromDays(i)) })
+                        .GroupBy(tuple => tuple.key, tuple => tuple.date)
+                        .OrderByDescending(x => x.Count())
+                        .Select(x => new DateRange { From = x.First(), To = x.Last(), NumberOfDays = x.Count() }).First()
                 });
             }
 
             return statistics;
+        }
+
+        private DateRange GetLongestSlump(List<LogEntry> logEntries)
+        {
+            DateRange longestSlump = new() {NumberOfDays = 0};
+
+            List<DateTime> dates = logEntries.Where(l => l.TotalMinutes > 0).OrderBy(l => l.LogDate).Select(l => l.LogDate).Distinct().ToList();
+
+            if (dates.Count < 2) return null;
+
+            for (int i = 1; i < dates.Skip(1).Count(); i++)
+            {
+                int fromPrevious = (int) (dates[i] - dates[i - 1]).TotalDays;
+                if (fromPrevious > longestSlump.NumberOfDays)
+                {
+                    longestSlump = new DateRange
+                    {
+                        From = dates[i - 1],
+                        To = dates[i],
+                        NumberOfDays = fromPrevious
+                    };
+                }
+            }
+
+            return longestSlump;
         }
     }
 }
