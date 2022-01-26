@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using CsvHelper;
 using Flightbook.Generator.Models;
 
@@ -10,6 +11,8 @@ namespace Flightbook.Generator.Import
 {
     internal class LogbookCsvImporter : ILogbookCsvImporter
     {
+        private readonly Regex _metarRegex = new("^[A-Z]{4} .*=?$", RegexOptions.Multiline);
+
         public List<LogEntry> Import()
         {
             string logbookPath = GetLogbookPath();
@@ -52,11 +55,17 @@ namespace Flightbook.Generator.Import
                     InstrumentMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Instrument Flying"])),
                     NightMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Flight time Night"])),
                     DayLandings = dayLandings,
-                    NightLandings = nightLandings
+                    NightLandings = nightLandings,
+                    Metars = GetMetars(csv.GetField<string>(headerNames["Weather Conditions"]))
                 });
             }
 
             return logEntries;
+        }
+
+        private string[] GetMetars(string fieldValue)
+        {
+            return _metarRegex.Matches(fieldValue).Select(m => m.Value.Trim()).ToArray();
         }
 
         private string GetLogbookPath()
@@ -100,7 +109,8 @@ namespace Flightbook.Generator.Import
                 {"Total Flight Time", header.FirstOrDefault(r => r == "Total Flight Time")},
                 {"PIC", header.FirstOrDefault(r => r is "PIC" or "Flight time PIC")},
                 {"Dual Received", header.FirstOrDefault(r => r is "Dual Received" or "Dual" or "Flight time Dual" or "Flight time Dual Received")},
-                {"Instrument Flying", header.FirstOrDefault(r => r is "Instrument Flying" or "Instrument" or "Flight time Instrument Flying")}
+                {"Instrument Flying", header.FirstOrDefault(r => r is "Instrument Flying" or "Instrument" or "Flight time Instrument Flying")},
+                {"Weather Conditions", header.FirstOrDefault(r => r is "Weather Conditions")}
             };
 
 

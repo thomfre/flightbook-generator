@@ -20,5 +20,6 @@ namespace Flightbook.Generator.Models
         public int NightMinutes { get; set; }
         public int DayLandings { get; set; }
         public int NightLandings { get; set; }
+        public string[] Metars { get; set; }
     }
 }

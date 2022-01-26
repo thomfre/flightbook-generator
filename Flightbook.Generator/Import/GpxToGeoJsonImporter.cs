@@ -94,6 +94,7 @@ namespace Flightbook.Generator.Import
                 SpeedMax = speedElevationPoints?.Max(p => (int) p.Speed) ?? 0,
                 SpeedAverage = speedElevationPoints != null ? (int) speedElevationPoints?.Average(p => p.Speed) : 0,
                 TotalDistance = totalDistance,
+                Metars = logEntry.Metars,
                 GeoJson = lineString,
                 SpeedElevationPoints = speedElevationPoints
             };

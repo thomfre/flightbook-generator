@@ -28,6 +28,7 @@ namespace Flightbook.Generator.Models.Tracklogs
         public int SpeedMax { get; set; }
         public int SpeedAverage { get; set; }
         public double TotalDistance { get; set; }
+        public string[] Metars { get; set; }
         public object GeoJson { get; set; }
         public List<SpeedElevationPoint> SpeedElevationPoints { get; set; }
     }
