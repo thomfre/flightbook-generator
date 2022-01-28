@@ -293,7 +293,7 @@ namespace Flightbook.Generator.Export
 
             if (dates.Count < 2) return null;
 
-            for (int i = 1; i < dates.Skip(1).Count(); i++)
+            for (int i = 1; i <= dates.Skip(1).Count(); i++)
             {
                 int fromPrevious = (int) (dates[i] - dates[i - 1]).TotalDays;
                 if (fromPrevious > longestSlump.NumberOfDays)
