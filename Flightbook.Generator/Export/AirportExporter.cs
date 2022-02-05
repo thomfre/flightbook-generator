@@ -5,6 +5,11 @@ using Newtonsoft.Json;
 
 namespace Flightbook.Generator.Export
 {
+    public interface IAirportExporter
+    {
+        string ExportToJson(List<AirportInfo> airports, string[] countryCodes);
+    }
+
     internal class AirportExporter : IAirportExporter
     {
         public string ExportToJson(List<AirportInfo> worldAirports, string[] countryCodes)

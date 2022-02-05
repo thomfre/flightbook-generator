@@ -24,6 +24,7 @@ namespace Flightbook.Generator
             builder.RegisterType<GpxToGeoJsonImporter>().AsImplementedInterfaces();
             builder.RegisterType<TrackLogExporter>().AsImplementedInterfaces();
             builder.RegisterType<AirportExporter>().AsImplementedInterfaces();
+            builder.RegisterType<LogEntryComparisonReport>().AsImplementedInterfaces();
             builder.RegisterType<Application>().AsSelf();
 
             Container = builder.Build();

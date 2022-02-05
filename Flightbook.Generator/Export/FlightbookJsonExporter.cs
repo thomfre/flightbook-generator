@@ -11,6 +11,12 @@ using Newtonsoft.Json;
 
 namespace Flightbook.Generator.Export
 {
+    public interface IFlightbookJsonExporter
+    {
+        string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> countries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes,
+            AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators, List<GpxTrack> trackLogs, Config configuration);
+    }
+
     internal class FlightbookJsonExporter : IFlightbookJsonExporter
     {
         public string CreateFlightbookJson(List<LogEntry> logEntries, List<AirportInfo> worldAirports, List<RunwayInfo> worldRunways, List<CountryInfo> worldCountries, List<RegionInfo> worldRegions, List<RegistrationPrefix> registrationPrefixes,

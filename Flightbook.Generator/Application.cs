@@ -21,13 +21,13 @@ namespace Flightbook.Generator
         private readonly IFlightbookJsonExporter _flightbookJsonExporter;
         private readonly IGpxToGeoJsonImporter _gpxToGeoJsonImporter;
         private readonly ILogbookCsvImporter _logbookCsvImporter;
+        private readonly ILogEntryComparisonReport _logEntryComparisonReport;
         private readonly IOurAirportsImporter _ourAirportsImporter;
         private readonly IRegistrationsImporter _registrationsImporter;
         private readonly ITracklogExporter _tracklogExporter;
 
         public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter,
-            IFlightbookExporter flightbookExporter,
-            IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter)
+            IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter, ILogEntryComparisonReport logEntryComparisonReport)
         {
             _console = console;
             _configurationLoader = configurationLoader;
@@ -39,6 +39,7 @@ namespace Flightbook.Generator
             _gpxToGeoJsonImporter = gpxToGeoJsonImporter;
             _tracklogExporter = tracklogExporter;
             _airportExporter = airportExporter;
+            _logEntryComparisonReport = logEntryComparisonReport;
         }
 
         public void Run()
@@ -96,8 +97,26 @@ namespace Flightbook.Generator
             _console.WriteLine("Exported airports", Colors.txtSuccess);
 
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
-            _flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics);
-            _console.WriteLine("Framework and data updated, remember to commit and push changes", Colors.txtSuccess);
+            if (_flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics))
+            {
+                _console.WriteLine("Framework and data updated, remember to commit and push changes", Colors.txtSuccess);
+            }
+            else
+            {
+                _console.WriteLine("Unable to update site with generated data", Colors.txtDanger);
+            }
+
+            _console.WriteLine("Generating report of mismatches between logbook and generated track data", Colors.txtInfo);
+            int numberOfMismatches = _logEntryComparisonReport.GenerateReport(logEntries, trackLogs);
+            if (numberOfMismatches > 0)
+            {
+                _console.WriteLine($"Mismatches found on {numberOfMismatches} {(numberOfMismatches == 1 ? "entry" : "entries")}", Colors.txtWarning);
+            }
+            else
+            {
+                _console.WriteLine("No mismatches found", Colors.txtSuccess);
+            }
+
 
             _console.ResetColor();
         }

@@ -7,6 +7,11 @@ using Flightbook.Generator.Models.Registrations;
 
 namespace Flightbook.Generator.Import
 {
+    public interface IRegistrationsImporter
+    {
+        List<RegistrationPrefix> GetRegistrationPrefixes();
+    }
+
     internal class RegistrationsImporter : IRegistrationsImporter
     {
         public List<RegistrationPrefix> GetRegistrationPrefixes()

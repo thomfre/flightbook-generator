@@ -8,6 +8,14 @@ using RegionInfo = Flightbook.Generator.Models.OurAirports.RegionInfo;
 
 namespace Flightbook.Generator.Import
 {
+    public interface IOurAirportsImporter
+    {
+        List<AirportInfo> GetAirports();
+        List<RunwayInfo> GetRunways();
+        List<CountryInfo> GetCountries();
+        List<RegionInfo> GetRegions();
+    }
+
     internal class OurAirportsImporter : IOurAirportsImporter
     {
         public List<AirportInfo> GetAirports()

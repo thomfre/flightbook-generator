@@ -5,6 +5,11 @@ using Newtonsoft.Json;
 
 namespace Flightbook.Generator.Export
 {
+    public interface ITracklogExporter
+    {
+        (string listJson, Dictionary<string, string> trackFiles) CreateTracklogFiles(List<GpxTrack> tracks);
+    }
+
     internal class TrackLogExporter : ITracklogExporter
     {
         public (string listJson, Dictionary<string, string> trackFiles) CreateTracklogFiles(List<GpxTrack> tracks)

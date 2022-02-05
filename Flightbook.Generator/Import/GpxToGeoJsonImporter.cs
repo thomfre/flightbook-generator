@@ -14,6 +14,11 @@ using TimeZoneConverter;
 
 namespace Flightbook.Generator.Import
 {
+    public interface IGpxToGeoJsonImporter
+    {
+        List<GpxTrack> SearchAndImport(List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports);
+    }
+
     internal class GpxToGeoJsonImporter : IGpxToGeoJsonImporter
     {
         public List<GpxTrack> SearchAndImport(List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
@@ -69,14 +74,17 @@ namespace Flightbook.Generator.Import
             DateTime? trackStartTime = gpx.Tracks?.First().Segments.FirstOrDefault()?.Points?.Select(p => p.Time).Min();
             string date = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd") : "unknown";
 
-            TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == Path.GetFileName(gpxPath));
+            string filename = Path.GetFileName(gpxPath);
 
-            LogEntry logEntry = GetRelevantLogEntry(logEntries, trackStartTime ?? DateTime.Now, worldAirports);
+            TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == filename);
+
+            LogEntry logEntry = GetRelevantLogEntry(logEntries, filename, trackStartTime ?? DateTime.Now, worldAirports);
 
             List<SpeedElevationPoint> speedElevationPoints = trackpoints?.Select(p => new SpeedElevationPoint(p.Elevation, p.Speed)).ToList();
 
             return new GpxTrack
             {
+                LogEntry = logEntry.EntryNumber,
                 Date = date,
                 DateTime = trackStartTime ?? DateTime.Now,
                 Name = gpx.Tracks?.FirstOrDefault()?.Name,
@@ -100,7 +108,7 @@ namespace Flightbook.Generator.Import
             };
         }
 
-        private LogEntry GetRelevantLogEntry(IEnumerable<LogEntry> logEntries, DateTime trackStartTime, List<AirportInfo> worldAirports)
+        private LogEntry GetRelevantLogEntry(IEnumerable<LogEntry> logEntries, string fileName, DateTime trackStartTime, List<AirportInfo> worldAirports)
         {
             List<LogEntry> relevantLogEntries = logEntries.Where(l => l.LogDate.Date == trackStartTime.Date).ToList();
 
@@ -118,7 +126,20 @@ namespace Flightbook.Generator.Import
                 .OrderBy(l => Math.Abs((GetLogTime(l.LogDate, l.Departure, l.From, worldAirports) - trackStartTime).TotalMinutes))
                 .FirstOrDefault();
 
-            return mostRelevantLogEntry;
+            if (!string.IsNullOrEmpty(mostRelevantLogEntry?.Departure))
+            {
+                return mostRelevantLogEntry;
+            }
+
+            string[] fileNameParts = fileName.Replace(".gpx", "").Split("-");
+            if (fileNameParts.Length <= 3 && mostRelevantLogEntry != null)
+            {
+                return mostRelevantLogEntry;
+            }
+
+            int fileNumber = int.Parse(fileNameParts[3]);
+            return relevantLogEntries.Count >= fileNumber ? relevantLogEntries[fileNumber - 1] : relevantLogEntries[0];
+
         }
 
         private static DateTime GetLogTime(DateTime logDate, string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)

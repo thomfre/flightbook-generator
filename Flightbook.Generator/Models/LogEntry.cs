@@ -4,6 +4,7 @@ namespace Flightbook.Generator.Models
 {
     public class LogEntry
     {
+        public int EntryNumber { get; set; }
         public DateTime LogDate { get; set; }
         public bool AsPic { get; set; }
         public string From { get; set; }
@@ -21,5 +22,11 @@ namespace Flightbook.Generator.Models
         public int DayLandings { get; set; }
         public int NightLandings { get; set; }
         public string[] Metars { get; set; }
+        public decimal? TrackDistance { get; set; }
+        public int? MaxAltitude { get; set; }
+        public int? AverageAltitude { get; set; }
+        public int? MaxGroundSpeed { get; set; }
+        public int? AverageGroundSpeed { get; set; }
+        public string FlightbookUrl { get; set; }
     }
 }

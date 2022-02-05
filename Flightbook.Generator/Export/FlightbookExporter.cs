@@ -6,13 +6,23 @@ using System.Text;
 
 namespace Flightbook.Generator.Export
 {
+    public interface IFlightbookExporter
+    {
+        bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics);
+    }
+
     internal class FlightbookExporter : IFlightbookExporter
     {
-        public void Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics)
+        public bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics)
         {
             string flightbookDir = "flightbook";
             string configDir = "config";
             string outputDir = GetOutputDir();
+
+            if (string.IsNullOrEmpty(outputDir))
+            {
+                return false;
+            }
 
             CleanTarget(outputDir);
             CopyFramework(flightbookDir, outputDir);
@@ -21,6 +31,8 @@ namespace Flightbook.Generator.Export
             ExportAirportsToCollect(airportsToCollect, outputDir);
             CopyOtherFiles(configDir, outputDir);
             InjectCfAnalytics(outputDir, cfAnalytics);
+
+            return true;
         }
 
         private string GetOutputDir()
@@ -28,7 +40,7 @@ namespace Flightbook.Generator.Export
             string currentDirectory = Directory.GetCurrentDirectory();
             string[] dirs = Directory.GetDirectories(currentDirectory);
 
-            return dirs.First(d => d.Replace($"{currentDirectory}\\", "").StartsWith("flightbook."));
+            return dirs.FirstOrDefault(d => d.Replace($"{currentDirectory}\\", "").StartsWith("flightbook."));
         }
 
         private void CleanTarget(string outputDir)

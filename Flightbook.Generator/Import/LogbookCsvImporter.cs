@@ -9,6 +9,11 @@ using Flightbook.Generator.Models;
 
 namespace Flightbook.Generator.Import
 {
+    public interface ILogbookCsvImporter
+    {
+        List<LogEntry> Import();
+    }
+
     internal class LogbookCsvImporter : ILogbookCsvImporter
     {
         private readonly Regex _metarRegex = new("^[A-Z]{4} .*=?$", RegexOptions.Multiline);
@@ -26,9 +31,12 @@ namespace Flightbook.Generator.Import
             Dictionary<string, string> headerNames = GetHeaderNames(csv.HeaderRecord);
 
             List<LogEntry> logEntries = new();
+            int entryNumber = 0;
 
             while (csv.Read())
             {
+                ++entryNumber;
+
                 string via = csv.GetField<string>(headerNames["Via"]);
                 int.TryParse(csv.GetField<string>(headerNames["Day Ldg"]), out int dayLandings);
                 int.TryParse(csv.GetField<string>(headerNames["Night Ldg"]), out int nightLandings);
@@ -40,6 +48,7 @@ namespace Flightbook.Generator.Import
 
                 logEntries.Add(new LogEntry
                 {
+                    EntryNumber = entryNumber,
                     LogDate = csv.GetField<DateTime>(headerNames["Date"]),
                     AsPic = csv.GetField<string>(headerNames["Holder's Operating Capacity"]) == "PIC",
                     From = csv.GetField<string>(headerNames["Departure"]),
@@ -56,7 +65,13 @@ namespace Flightbook.Generator.Import
                     NightMinutes = HoursMinutesToMinutes(csv.GetField<string>(headerNames["Flight time Night"])),
                     DayLandings = dayLandings,
                     NightLandings = nightLandings,
-                    Metars = GetMetars(csv.GetField<string>(headerNames["Weather Conditions"]))
+                    Metars = GetMetars(csv.GetField<string>(headerNames["Weather Conditions"])),
+                    TrackDistance = csv.GetField<decimal?>(headerNames["Track distance"]),
+                    MaxAltitude = csv.GetField<int?>(headerNames["Max altitude"]),
+                    AverageAltitude = csv.GetField<int?>(headerNames["Average altitude"]),
+                    MaxGroundSpeed = csv.GetField<int?>(headerNames["Max ground speed"]),
+                    AverageGroundSpeed = csv.GetField<int?>(headerNames["Average ground speed"]),
+                    FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"])
                 });
             }
 
@@ -110,7 +125,13 @@ namespace Flightbook.Generator.Import
                 {"PIC", header.FirstOrDefault(r => r is "PIC" or "Flight time PIC")},
                 {"Dual Received", header.FirstOrDefault(r => r is "Dual Received" or "Dual" or "Flight time Dual" or "Flight time Dual Received")},
                 {"Instrument Flying", header.FirstOrDefault(r => r is "Instrument Flying" or "Instrument" or "Flight time Instrument Flying")},
-                {"Weather Conditions", header.FirstOrDefault(r => r is "Weather Conditions")}
+                {"Weather Conditions", header.FirstOrDefault(r => r is "Weather Conditions")},
+                {"Track distance", header.FirstOrDefault(r => r is "Flight data Track distance (nm)")},
+                {"Max altitude", header.FirstOrDefault(r => r is "Flight data Max altitude (ft)")},
+                {"Average altitude", header.FirstOrDefault(r => r is "Flight data Average altitude (ft)")},
+                {"Max ground speed", header.FirstOrDefault(r => r is "Flight data Max ground speed (kts)")},
+                {"Average ground speed", header.FirstOrDefault(r => r is "Flight data Average ground speed (kts)")},
+                {"Flightbook URL", header.FirstOrDefault(r => r is "Flight data Flightbook URL")}
             };
 
 

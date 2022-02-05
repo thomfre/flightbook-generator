@@ -7,6 +7,8 @@ namespace Flightbook.Generator.Models.Tracklogs
     public class GpxTrack
     {
         [JsonIgnore]
+        public int LogEntry { get; set; }
+        [JsonIgnore]
         public string Filename { get; set; }
         public string Date { get; set; }
 

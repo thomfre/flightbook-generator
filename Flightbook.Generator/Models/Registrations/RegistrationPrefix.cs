@@ -2,7 +2,7 @@
 
 namespace Flightbook.Generator.Models.Registrations
 {
-    internal class RegistrationPrefix
+    public class RegistrationPrefix
     {
         [Index(0)]
         public string Prefix { get; set; }
