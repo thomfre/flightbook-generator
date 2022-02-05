@@ -233,10 +233,10 @@ namespace Flightbook.Generator.Export
                 {
                     AltitudeMax = trackLogs.Max(t => t.AltitudeMax),
                     AltitudeMaxFlight = trackLogs.OrderByDescending(t => t.AltitudeMax).Select(t => t.Filename).FirstOrDefault(),
-                    AltitudeAverage = (int) trackLogs.Average(t => t.AltitudeMax),
+                    AltitudeAverage = (int) Math.Round(trackLogs.Average(t => t.AltitudeAverage)),
                     SpeedMax = trackLogs.Max(t => t.SpeedMax),
                     SpeedMaxFlight = trackLogs.OrderByDescending(t => t.SpeedMax).Select(t => t.Filename).FirstOrDefault(),
-                    SpeedAverage = (int) trackLogs.Average(t => t.SpeedMax),
+                    SpeedAverage = (int) Math.Round(trackLogs.Average(t => t.SpeedAverage)),
                     DistanceTotal = trackLogs.Sum(t => t.TotalDistance),
                     DistanceMax = trackLogs.Max(t => t.TotalDistance),
                     DistanceMaxFlight = trackLogs.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
@@ -263,10 +263,10 @@ namespace Flightbook.Generator.Export
                     Year = year,
                     AltitudeMax = filteredTracks.Max(t => t.AltitudeMax),
                     AltitudeMaxFlight = filteredTracks.OrderByDescending(t => t.AltitudeMax).Select(t => t.Filename).FirstOrDefault(),
-                    AltitudeAverage = (int) filteredTracks.Average(t => t.AltitudeMax),
+                    AltitudeAverage = (int) Math.Round(filteredTracks.Average(t => t.AltitudeAverage)),
                     SpeedMax = filteredTracks.Max(t => t.SpeedMax),
                     SpeedMaxFlight = filteredTracks.OrderByDescending(t => t.SpeedMax).Select(t => t.Filename).FirstOrDefault(),
-                    SpeedAverage = (int) filteredTracks.Average(t => t.SpeedMax),
+                    SpeedAverage = (int) Math.Round(filteredTracks.Average(t => t.SpeedAverage)),
                     DistanceTotal = filteredTracks.Sum(t => t.TotalDistance),
                     DistanceMax = filteredTracks.Max(t => t.TotalDistance),
                     DistanceMaxFlight = filteredTracks.OrderByDescending(t => t.TotalDistance).Select(t => t.Filename).FirstOrDefault(),
@@ -275,10 +275,10 @@ namespace Flightbook.Generator.Export
                     LastFlight = filteredLogEntries.Where(l => l.TotalMinutes > 0).Max(l => l.LogDate),
                     LongestSlump = GetLongestSlump(filteredLogEntries),
                     LongestStreak = filteredLogEntries.Where(l => l.TotalMinutes > 0).Select(l => l.LogDate).Distinct().OrderBy(d => d)
-                        .Select((date, i) => new { date, key = date.Subtract(TimeSpan.FromDays(i)) })
+                        .Select((date, i) => new {date, key = date.Subtract(TimeSpan.FromDays(i))})
                         .GroupBy(tuple => tuple.key, tuple => tuple.date)
                         .OrderByDescending(x => x.Count())
-                        .Select(x => new DateRange { From = x.First(), To = x.Last(), NumberOfDays = x.Count() }).First()
+                        .Select(x => new DateRange {From = x.First(), To = x.Last(), NumberOfDays = x.Count()}).First()
                 });
             }
 
@@ -291,7 +291,10 @@ namespace Flightbook.Generator.Export
 
             List<DateTime> dates = logEntries.Where(l => l.TotalMinutes > 0).OrderBy(l => l.LogDate).Select(l => l.LogDate).Distinct().ToList();
 
-            if (dates.Count < 2) return null;
+            if (dates.Count < 2)
+            {
+                return null;
+            }
 
             for (int i = 1; i <= dates.Skip(1).Count(); i++)
             {
