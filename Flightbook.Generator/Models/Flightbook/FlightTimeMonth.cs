@@ -12,5 +12,6 @@
         public int DualLandings { get; set; }
         public int PicLandings { get; set; }
         public int NightLandings { get; set; }
+        public string[] Airports { get; set; }
     }
 }

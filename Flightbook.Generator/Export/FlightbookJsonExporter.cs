@@ -208,6 +208,11 @@ namespace Flightbook.Generator.Export
             {
                 List<LogEntry> filteredLogEntries = logEntries.Where(l => l.LogDate.Year == startDate.Year && l.LogDate.Month == startDate.Month).ToList();
 
+                List<string> airports = filteredLogEntries.Select(l => l.From)
+                    .Concat(filteredLogEntries.Select(l => l.To))
+                    .Concat(filteredLogEntries.Where(l => l.Via != null).SelectMany(l => l.Via))
+                    .Distinct().ToList();
+
                 months.Add(new FlightTimeMonth
                 {
                     Month = startDate.ToString("yyyy-MM"),
@@ -219,7 +224,8 @@ namespace Flightbook.Generator.Export
                     Landings = filteredLogEntries.Sum(l => l.DayLandings + l.NightLandings),
                     NightLandings = filteredLogEntries.Sum(l => l.NightLandings),
                     PicLandings = filteredLogEntries.Where(l => l.AsPic).Sum(l => l.DayLandings + l.NightLandings),
-                    DualLandings = filteredLogEntries.Where(l => !l.AsPic).Sum(l => l.DayLandings + l.NightLandings)
+                    DualLandings = filteredLogEntries.Where(l => !l.AsPic).Sum(l => l.DayLandings + l.NightLandings),
+                    Airports = airports.ToArray()
                 });
 
                 startDate = startDate.AddMonths(1);
