@@ -72,7 +72,7 @@ namespace Flightbook.Generator.Import
                     MaxGroundSpeed = csv.GetField<int?>(headerNames["Max ground speed"]),
                     AverageGroundSpeed = csv.GetField<int?>(headerNames["Average ground speed"]),
                     FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"]),
-                    Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(","),
+                    Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(",", StringSplitOptions.RemoveEmptyEntries),
                     Comments = csv.GetField<string>(headerNames["Comments"])
                 });
             }
