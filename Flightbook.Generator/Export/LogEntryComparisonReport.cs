@@ -96,6 +96,8 @@ namespace Flightbook.Generator.Export
                 reportBuilder.AppendLine("**No problems detected**");
             }
 
+            reportBuilder.AppendLine();
+
             File.WriteAllText(@"LogEntryComparisonReport.md", reportBuilder.ToString());
 
             return problems.Count;

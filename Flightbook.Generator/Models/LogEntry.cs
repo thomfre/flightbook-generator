@@ -28,5 +28,7 @@ namespace Flightbook.Generator.Models
         public int? MaxGroundSpeed { get; set; }
         public int? AverageGroundSpeed { get; set; }
         public string FlightbookUrl { get; set; }
+        public string[] Squawks { get; set; }
+        public string Comments { get; set; }
     }
 }

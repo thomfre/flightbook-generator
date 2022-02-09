@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Colorify;
 using Flightbook.Generator.Export;
 using Flightbook.Generator.Import;
@@ -22,12 +23,13 @@ namespace Flightbook.Generator
         private readonly IGpxToGeoJsonImporter _gpxToGeoJsonImporter;
         private readonly ILogbookCsvImporter _logbookCsvImporter;
         private readonly ILogEntryComparisonReport _logEntryComparisonReport;
+        private readonly ILogEntryQualityReport _logEntryQualityReport;
         private readonly IOurAirportsImporter _ourAirportsImporter;
         private readonly IRegistrationsImporter _registrationsImporter;
         private readonly ITracklogExporter _tracklogExporter;
 
         public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter,
-            IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter, ILogEntryComparisonReport logEntryComparisonReport)
+            IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter, ILogEntryComparisonReport logEntryComparisonReport, ILogEntryQualityReport logEntryQualityReport)
         {
             _console = console;
             _configurationLoader = configurationLoader;
@@ -40,6 +42,7 @@ namespace Flightbook.Generator
             _tracklogExporter = tracklogExporter;
             _airportExporter = airportExporter;
             _logEntryComparisonReport = logEntryComparisonReport;
+            _logEntryQualityReport = logEntryQualityReport;
         }
 
         public void Run()
@@ -117,8 +120,16 @@ namespace Flightbook.Generator
                 _console.WriteLine("No mismatches found", Colors.txtSuccess);
             }
 
+            _console.WriteLine("Generating log entry quality report", Colors.txtInfo);
+            _logEntryQualityReport.GenerateReport(logEntries, trackLogs);
+            _console.WriteLine("Report generation completed", Colors.txtSuccess);
+
+            _console.WriteLine("");
+            _console.WriteLine("Flightbook generation completed, press <Enter> to exit", Colors.txtPrimary);
 
             _console.ResetColor();
+
+            Console.ReadLine();
         }
     }
 }

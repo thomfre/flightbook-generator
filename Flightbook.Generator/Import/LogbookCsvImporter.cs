@@ -71,7 +71,9 @@ namespace Flightbook.Generator.Import
                     AverageAltitude = csv.GetField<int?>(headerNames["Average altitude"]),
                     MaxGroundSpeed = csv.GetField<int?>(headerNames["Max ground speed"]),
                     AverageGroundSpeed = csv.GetField<int?>(headerNames["Average ground speed"]),
-                    FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"])
+                    FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"]),
+                    Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(","),
+                    Comments = csv.GetField<string>(headerNames["Comments"])
                 });
             }
 
@@ -131,7 +133,9 @@ namespace Flightbook.Generator.Import
                 {"Average altitude", header.FirstOrDefault(r => r is "Flight data Average altitude (ft)")},
                 {"Max ground speed", header.FirstOrDefault(r => r is "Flight data Max ground speed (kts)")},
                 {"Average ground speed", header.FirstOrDefault(r => r is "Flight data Average ground speed (kts)")},
-                {"Flightbook URL", header.FirstOrDefault(r => r is "Flight data Flightbook URL")}
+                {"Flightbook URL", header.FirstOrDefault(r => r is "Flight data Flightbook URL")},
+                {"Flight data Squawks", header.FirstOrDefault(r => r is "Flight data Squawks")},
+                {"Comments", header.FirstOrDefault(r => r is "Comments")}
             };
 
 

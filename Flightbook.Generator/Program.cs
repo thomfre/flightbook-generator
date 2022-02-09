@@ -25,6 +25,7 @@ namespace Flightbook.Generator
             builder.RegisterType<TrackLogExporter>().AsImplementedInterfaces();
             builder.RegisterType<AirportExporter>().AsImplementedInterfaces();
             builder.RegisterType<LogEntryComparisonReport>().AsImplementedInterfaces();
+            builder.RegisterType<LogEntryQualityReport>().AsImplementedInterfaces();
             builder.RegisterType<Application>().AsSelf();
 
             Container = builder.Build();
