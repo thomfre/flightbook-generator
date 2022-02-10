@@ -85,7 +85,7 @@ namespace Flightbook.Generator.Export
             else
             {
                 reportBuilder.AppendLine("|Entry|Track|Squawk|Approaches|METAR|Comments|");
-                reportBuilder.AppendLine("|--|--|--|--|--|");
+                reportBuilder.AppendLine("|--|--|--|--|--|--|");
 
                 foreach ((LogEntry entry, Dictionary<string, string> problems) in lowQuality)
                 {
