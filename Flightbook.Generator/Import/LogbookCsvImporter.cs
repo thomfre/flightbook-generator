@@ -73,7 +73,8 @@ namespace Flightbook.Generator.Import
                     AverageGroundSpeed = csv.GetField<int?>(headerNames["Average ground speed"]),
                     FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"]),
                     Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(",", StringSplitOptions.RemoveEmptyEntries),
-                    Comments = csv.GetField<string>(headerNames["Comments"])
+                    Comments = csv.GetField<string>(headerNames["Comments"]),
+                    Approaches = csv.GetField<string>(headerNames["Approaches Summary"]).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
                 });
             }
 
@@ -135,7 +136,8 @@ namespace Flightbook.Generator.Import
                 {"Average ground speed", header.FirstOrDefault(r => r is "Flight data Average ground speed (kts)")},
                 {"Flightbook URL", header.FirstOrDefault(r => r is "Flight data Flightbook URL")},
                 {"Flight data Squawks", header.FirstOrDefault(r => r is "Flight data Squawks")},
-                {"Comments", header.FirstOrDefault(r => r is "Comments")}
+                {"Comments", header.FirstOrDefault(r => r is "Comments")},
+                {"Approaches Summary", header.FirstOrDefault(r => r is "Approaches Summary")}
             };
 
 

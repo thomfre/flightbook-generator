@@ -40,7 +40,7 @@ namespace Flightbook.Generator.Export
                     problems.Add("METAR", "No parseable METAR found");
                 }
 
-                if (entry.Squawks.Length == 0)
+                if (!entry.Squawks.Any())
                 {
                     problems.Add("Squawk", "No squawks found");
                 }
@@ -53,6 +53,11 @@ namespace Flightbook.Generator.Export
                 if (problems.Count > 0)
                 {
                     lowQuality.Add(entry, problems);
+                }
+
+                if (!entry.Approaches.Any())
+                {
+                    problems.Add("Approaches", "No approaches found");
                 }
             });
 
@@ -79,13 +84,13 @@ namespace Flightbook.Generator.Export
             }
             else
             {
-                reportBuilder.AppendLine("|Entry|Track|Squawk|METAR|Comments|");
+                reportBuilder.AppendLine("|Entry|Track|Squawk|Approaches|METAR|Comments|");
                 reportBuilder.AppendLine("|--|--|--|--|--|");
 
                 foreach ((LogEntry entry, Dictionary<string, string> problems) in lowQuality)
                 {
                     reportBuilder.AppendLine(
-                        $"|{entry.EntryNumber}|{(problems.ContainsKey("Track") ? problems["Track"] : string.Empty)}|{(problems.ContainsKey("Squawk") ? problems["Squawk"] : string.Empty)}|{(problems.ContainsKey("METAR") ? problems["METAR"] : string.Empty)}|{(problems.ContainsKey("Comments") ? problems["Comments"] : string.Empty)}|");
+                        $"|{entry.EntryNumber}|{(problems.ContainsKey("Track") ? problems["Track"] : string.Empty)}|{(problems.ContainsKey("Squawk") ? problems["Squawk"] : string.Empty)}|{(problems.ContainsKey("Approaches") ? problems["Approaches"] : string.Empty)}|{(problems.ContainsKey("METAR") ? problems["METAR"] : string.Empty)}|{(problems.ContainsKey("Comments") ? problems["Comments"] : string.Empty)}|");
                 }
             }
 
