@@ -31,5 +31,6 @@ namespace Flightbook.Generator.Models
         public string[] Squawks { get; set; }
         public string Comments { get; set; }
         public string[] Approaches { get; set; }
+        public bool Aborted { get; set; }
     }
 }

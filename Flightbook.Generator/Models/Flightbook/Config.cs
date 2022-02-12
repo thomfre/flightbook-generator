@@ -11,6 +11,7 @@
         public OperatorInformation[] Operators { get; set; }
         public AircraftInformation[] Aircrafts { get; set; }
         public TracklogExtra[] TracklogExtras { get; set; }
+        public int[] IgnoreQualityForEntries { get; set; }
     }
 
     public class OperatorInformation

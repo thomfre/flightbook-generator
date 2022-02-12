@@ -121,8 +121,15 @@ namespace Flightbook.Generator
             }
 
             _console.WriteLine("Generating log entry quality report", Colors.txtInfo);
-            _logEntryQualityReport.GenerateReport(logEntries, trackLogs);
-            _console.WriteLine("Report generation completed", Colors.txtSuccess);
+            int numberOfLowQuality = _logEntryQualityReport.GenerateReport(logEntries, trackLogs, configuration.IgnoreQualityForEntries);
+            if (numberOfLowQuality > 0)
+            {
+                _console.WriteLine($"Quality issues found on {numberOfLowQuality} {(numberOfLowQuality == 1 ? "entry" : "entries")}", Colors.txtWarning);
+            }
+            else
+            {
+                _console.WriteLine("No quality issues found", Colors.txtSuccess);
+            }
 
             _console.WriteLine("");
             _console.WriteLine("Flightbook generation completed, press <Enter> to exit", Colors.txtPrimary);

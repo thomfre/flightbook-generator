@@ -74,7 +74,8 @@ namespace Flightbook.Generator.Import
                     FlightbookUrl = csv.GetField<string>(headerNames["Flightbook URL"]),
                     Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(",", StringSplitOptions.RemoveEmptyEntries),
                     Comments = csv.GetField<string>(headerNames["Comments"]),
-                    Approaches = csv.GetField<string>(headerNames["Approaches Summary"]).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries)
+                    Approaches = csv.GetField<string>(headerNames["Approaches Summary"]).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries),
+                    Aborted = csv.GetField<string>(headerNames["Flight attributes Aborted"]).ToUpper() == "YES"
                 });
             }
 
@@ -137,7 +138,8 @@ namespace Flightbook.Generator.Import
                 {"Flightbook URL", header.FirstOrDefault(r => r is "Flight data Flightbook URL")},
                 {"Flight data Squawks", header.FirstOrDefault(r => r is "Flight data Squawks")},
                 {"Comments", header.FirstOrDefault(r => r is "Comments")},
-                {"Approaches Summary", header.FirstOrDefault(r => r is "Approaches Summary")}
+                {"Approaches Summary", header.FirstOrDefault(r => r is "Approaches Summary")},
+                {"Flight attributes Aborted", header.FirstOrDefault(r => r is "Flight attributes Aborted")}
             };
 
 

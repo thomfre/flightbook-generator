@@ -10,20 +10,25 @@ namespace Flightbook.Generator.Export
 {
     public interface ILogEntryQualityReport
     {
-        void GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs);
+        int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs, int[] ignoreQualityForEntries);
     }
 
     internal class LogEntryQualityReport : ILogEntryQualityReport
     {
-        public void GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs)
+        public int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs, int[] ignoreQualityForEntries)
         {
             Dictionary<LogEntry, Dictionary<string, string>> lowQuality = new();
 
             logEntries.ForEach(entry =>
             {
+                if (ignoreQualityForEntries.Contains(entry.EntryNumber))
+                {
+                    return;
+                }
+
                 Dictionary<string, string> problems = new();
 
-                if (trackLogs.All(t => t.LogEntry != entry.EntryNumber))
+                if (!entry.Aborted && trackLogs.All(t => t.LogEntry != entry.EntryNumber))
                 {
                     problems.Add("Track", "No track found");
                 }
@@ -35,14 +40,19 @@ namespace Flightbook.Generator.Export
                     }
                 }
 
-                if (!entry.Metars.Any())
+                if (!entry.Aborted && !entry.Metars.Any())
                 {
                     problems.Add("METAR", "No parseable METAR found");
                 }
 
-                if (!entry.Squawks.Any())
+                if (!entry.Aborted && !entry.Squawks.Any())
                 {
                     problems.Add("Squawk", "No squawks found");
+                }
+
+                if (!entry.Aborted && !entry.Approaches.Any())
+                {
+                    problems.Add("Approaches", "No approaches found");
                 }
 
                 if (string.IsNullOrEmpty(entry.Comments))
@@ -53,11 +63,6 @@ namespace Flightbook.Generator.Export
                 if (problems.Count > 0)
                 {
                     lowQuality.Add(entry, problems);
-                }
-
-                if (!entry.Approaches.Any())
-                {
-                    problems.Add("Approaches", "No approaches found");
                 }
             });
 
@@ -84,6 +89,8 @@ namespace Flightbook.Generator.Export
             }
             else
             {
+                reportBuilder.AppendLine($"A total of {lowQuality.Sum(q => q.Value.Count)} issues was detected across {lowQuality.Count} log entries");
+                reportBuilder.AppendLine();
                 reportBuilder.AppendLine("|Entry|Track|Squawk|Approaches|METAR|Comments|");
                 reportBuilder.AppendLine("|--|--|--|--|--|--|");
 
@@ -97,6 +104,8 @@ namespace Flightbook.Generator.Export
             reportBuilder.AppendLine();
 
             File.WriteAllText(@"LogEntryQualityReport.md", reportBuilder.ToString());
+
+            return lowQuality.Count;
         }
     }
 }
