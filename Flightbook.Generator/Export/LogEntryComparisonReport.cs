@@ -33,27 +33,27 @@ namespace Flightbook.Generator.Export
 
                 if (logEntry.AverageAltitude != track.AltitudeAverage)
                 {
-                    mismatches.Add($"Average altitude|{FormatValueDisplay(logEntry.AverageAltitude)}|{track.AltitudeAverage}|");
+                    mismatches.Add($"|Average altitude|{FormatValueDisplay(logEntry.AverageAltitude)}|{track.AltitudeAverage}|");
                 }
 
                 if (logEntry.MaxGroundSpeed != track.SpeedMax)
                 {
-                    mismatches.Add($"Max speed|{FormatValueDisplay(logEntry.MaxGroundSpeed)}|{track.SpeedMax}|");
+                    mismatches.Add($"|Max speed|{FormatValueDisplay(logEntry.MaxGroundSpeed)}|{track.SpeedMax}|");
                 }
 
                 if (logEntry.AverageGroundSpeed != track.SpeedAverage)
                 {
-                    mismatches.Add($"Average speed|{FormatValueDisplay(logEntry.AverageGroundSpeed)}|{track.SpeedAverage}|");
+                    mismatches.Add($"|Average speed|{FormatValueDisplay(logEntry.AverageGroundSpeed)}|{track.SpeedAverage}|");
                 }
 
                 if (Math.Round(logEntry.TrackDistance ?? 0, 1) != (decimal) Math.Round(track.TotalDistance, 1))
                 {
-                    mismatches.Add($"Track distance|{FormatValueDisplay(logEntry.TrackDistance)}|{Math.Round(track.TotalDistance, 1)}|");
+                    mismatches.Add($"|Track distance|{FormatValueDisplay(logEntry.TrackDistance)}|{Math.Round(track.TotalDistance, 1)}|");
                 }
 
                 if (filename != track.Filename)
                 {
-                    mismatches.Add($"Flightbook URL|{FormatValueDisplay(filename)}|{track.Filename}|");
+                    mismatches.Add($"|Flightbook URL|{FormatValueDisplay(filename)}|{track.Filename}|");
                 }
 
                 if (mismatches.Count > 0)
