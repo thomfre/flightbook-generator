@@ -69,7 +69,7 @@ namespace Flightbook.Generator
             Config configuration = _configurationLoader.GetConfiguration();
 
             _console.WriteLine("Importing log entries", Colors.txtInfo);
-            List<LogEntry> logEntries = _logbookCsvImporter.Import();
+            List<LogEntry> logEntries = _logbookCsvImporter.Import(configuration);
             _console.WriteLine($"Imported {logEntries.Count} log entries", Colors.txtSuccess);
 
             _console.WriteLine("Reading airport/country data", Colors.txtInfo);
@@ -110,7 +110,7 @@ namespace Flightbook.Generator
             }
 
             _console.WriteLine("Generating report of mismatches between logbook and generated track data", Colors.txtInfo);
-            int numberOfMismatches = _logEntryComparisonReport.GenerateReport(logEntries, trackLogs);
+            int numberOfMismatches = _logEntryComparisonReport.GenerateReport(logEntries, trackLogs, configuration.TracklogExtras);
             if (numberOfMismatches > 0)
             {
                 _console.WriteLine($"Mismatches found on {numberOfMismatches} {(numberOfMismatches == 1 ? "entry" : "entries")}", Colors.txtWarning);

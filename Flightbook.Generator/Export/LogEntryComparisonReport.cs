@@ -4,18 +4,19 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Flightbook.Generator.Models;
+using Flightbook.Generator.Models.Flightbook;
 using Flightbook.Generator.Models.Tracklogs;
 
 namespace Flightbook.Generator.Export
 {
     public interface ILogEntryComparisonReport
     {
-        int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs);
+        int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs, TracklogExtra[] tracklogExtras);
     }
 
     internal class LogEntryComparisonReport : ILogEntryComparisonReport
     {
-        public int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs)
+        public int GenerateReport(List<LogEntry> logEntries, List<GpxTrack> trackLogs, TracklogExtra[] tracklogExtras)
         {
             Dictionary<LogEntry, string> problems = new();
 
@@ -56,11 +57,37 @@ namespace Flightbook.Generator.Export
                     mismatches.Add($"|Flightbook URL|{FormatValueDisplay(filename)}|{track.Filename}|");
                 }
 
+                TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == track.Filename);
+
+                if (tracklogExtra != null)
+                {
+                    if (!string.IsNullOrWhiteSpace(tracklogExtra.Youtube) && tracklogExtra.Youtube != logEntry.Links?.Youtube)
+                    {
+                        mismatches.Add($"|Youtube URL|{FormatValueDisplay(logEntry.Links?.Youtube)}|{tracklogExtra.Youtube}|");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(tracklogExtra.Blogpost) && tracklogExtra.Blogpost != logEntry.Links?.Blog)
+                    {
+                        mismatches.Add($"|Blog URL|{FormatValueDisplay(logEntry.Links?.Blog)}|{tracklogExtra.Blogpost}|");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(tracklogExtra.Gallery) && tracklogExtra.Gallery != logEntry.Links?.Flickr)
+                    {
+                        mismatches.Add($"|Flickr URL|{FormatValueDisplay(logEntry.Links?.Flickr)}|{tracklogExtra.Gallery}|");
+                    }
+
+                    if (!string.IsNullOrWhiteSpace(tracklogExtra.FacebookPost) && tracklogExtra.FacebookPost != logEntry.Links?.Facebook)
+                    {
+                        mismatches.Add($"|Facebook URL|{FormatValueDisplay(logEntry.Links?.Facebook)}|{tracklogExtra.FacebookPost}|");
+                    }
+                }
+
                 if (mismatches.Count > 0)
                 {
                     problems.Add(logEntry, string.Join(Environment.NewLine, mismatches));
                 }
             });
+
 
             StringBuilder reportBuilder = new();
             reportBuilder.AppendLine(@"```

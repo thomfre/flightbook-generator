@@ -6,6 +6,8 @@
         public string AirportGallerySearch { get; set; }
         public string AircraftGallerySearch { get; set; }
         public string FlickrProxyUrl { get; set; }
+        public string LinksFieldName { get; set; }
+        public string BlogBaseUrl { get; set; }
         public string[] CollectingAirportsFromCountries { get; set; }
         public string CfAnalytics { get; set; }
         public OperatorInformation[] Operators { get; set; }

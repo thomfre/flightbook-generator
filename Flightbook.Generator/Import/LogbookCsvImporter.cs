@@ -6,19 +6,20 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CsvHelper;
 using Flightbook.Generator.Models;
+using Flightbook.Generator.Models.Flightbook;
 
 namespace Flightbook.Generator.Import
 {
     public interface ILogbookCsvImporter
     {
-        List<LogEntry> Import();
+        List<LogEntry> Import(Config configuration);
     }
 
     internal class LogbookCsvImporter : ILogbookCsvImporter
     {
         private readonly Regex _metarRegex = new("^[A-Z]{4} .*=?$", RegexOptions.Multiline);
 
-        public List<LogEntry> Import()
+        public List<LogEntry> Import(Config configuration)
         {
             string logbookPath = GetLogbookPath();
 
@@ -28,7 +29,7 @@ namespace Flightbook.Generator.Import
             csv.Read();
             csv.ReadHeader();
 
-            Dictionary<string, string> headerNames = GetHeaderNames(csv.HeaderRecord);
+            Dictionary<string, string> headerNames = GetHeaderNames(csv.HeaderRecord, configuration.LinksFieldName);
 
             List<LogEntry> logEntries = new();
             int entryNumber = 0;
@@ -75,11 +76,47 @@ namespace Flightbook.Generator.Import
                     Squawks = csv.GetField<string>(headerNames["Flight data Squawks"]).Split(",", StringSplitOptions.RemoveEmptyEntries),
                     Comments = csv.GetField<string>(headerNames["Comments"]),
                     Approaches = csv.GetField<string>(headerNames["Approaches Summary"]).Split(Environment.NewLine, StringSplitOptions.RemoveEmptyEntries),
-                    Aborted = csv.GetField<string>(headerNames["Flight attributes Aborted"]).ToUpper() == "YES"
+                    Aborted = csv.GetField<string>(headerNames["Flight attributes Aborted"]).ToUpper() == "YES",
+                    Links = GetLinks(csv.GetField<string>(headerNames[configuration.LinksFieldName]), configuration)
                 });
             }
 
             return logEntries;
+        }
+
+        private Links GetLinks(string rawLinks, Config configuration)
+        {
+            if (string.IsNullOrWhiteSpace(rawLinks))
+            {
+                return null;
+            }
+
+            Links parsedLinks = new();
+
+            foreach (string link in rawLinks.Split(Environment.NewLine).Select(l => l.Trim()))
+            {
+                if (link.StartsWith(configuration.BlogBaseUrl))
+                {
+                    parsedLinks.Blog = link;
+                }
+
+                if (link.StartsWith("https://www.youtube.com/") || link.StartsWith("https://youtube.com/") || link.StartsWith("https://youtu.be/"))
+                {
+                    parsedLinks.Youtube = link;
+                }
+
+                if (link.StartsWith("https://flic.kr") || link.StartsWith("https://flickr.com"))
+                {
+                    parsedLinks.Flickr = link;
+                }
+
+                if (link.StartsWith("https://www.facebook.com/"))
+                {
+                    parsedLinks.Facebook = link;
+                }
+            }
+
+            return parsedLinks;
         }
 
         private string[] GetMetars(string fieldValue)
@@ -109,7 +146,7 @@ namespace Flightbook.Generator.Import
             return int.Parse(parts[0]) * 60 + int.Parse(parts[1]);
         }
 
-        private Dictionary<string, string> GetHeaderNames(string[] header)
+        private Dictionary<string, string> GetHeaderNames(string[] header, string linksFieldName)
         {
             Dictionary<string, string> headerNameMappings = new()
             {
@@ -139,7 +176,8 @@ namespace Flightbook.Generator.Import
                 {"Flight data Squawks", header.FirstOrDefault(r => r is "Flight data Squawks")},
                 {"Comments", header.FirstOrDefault(r => r is "Comments")},
                 {"Approaches Summary", header.FirstOrDefault(r => r is "Approaches Summary")},
-                {"Flight attributes Aborted", header.FirstOrDefault(r => r is "Flight attributes Aborted")}
+                {"Flight attributes Aborted", header.FirstOrDefault(r => r is "Flight attributes Aborted")},
+                {linksFieldName, header.FirstOrDefault(r => r == linksFieldName)}
             };
 
 

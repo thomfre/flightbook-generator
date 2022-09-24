@@ -1,4 +1,5 @@
 ﻿using System;
+using JetBrains.Annotations;
 
 namespace Flightbook.Generator.Models
 {
@@ -32,5 +33,19 @@ namespace Flightbook.Generator.Models
         public string Comments { get; set; }
         public string[] Approaches { get; set; }
         public bool Aborted { get; set; }
+        [CanBeNull]
+        public Links Links { get; set; }
+    }
+
+    public class Links
+    {
+        [CanBeNull]
+        public string Youtube { get; set; }
+        [CanBeNull]
+        public string Flickr { get; set; }
+        [CanBeNull]
+        public string Blog { get; set; }
+        [CanBeNull]
+        public string Facebook { get; set; }
     }
 }
