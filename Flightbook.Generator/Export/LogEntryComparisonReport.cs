@@ -57,7 +57,16 @@ namespace Flightbook.Generator.Export
                     mismatches.Add($"|Flightbook URL|{FormatValueDisplay(filename)}|{track.Filename}|");
                 }
 
-                TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == $"{track.Filename}.gpx");
+                List<TracklogExtra> tracklogExtraCandidates = tracklogExtras.Where(t => t.Tracklog.StartsWith(track.Filename)).ToList();
+                string[] nameParts = track.Filename.Split("-");
+                int fileNumber = nameParts.Length == 3 ? 1 : int.Parse(nameParts[3]);
+
+                TracklogExtra tracklogExtra = tracklogExtraCandidates.Count switch
+                {
+                    0 => null,
+                    1 => tracklogExtraCandidates[0],
+                    var _ => tracklogExtraCandidates[fileNumber - 1]
+                };
 
                 if (tracklogExtra != null)
                 {
