@@ -11,7 +11,7 @@
         public string[] CollectingAirportsFromCountries { get; set; }
         public string CfAnalytics { get; set; }
         public OperatorInformation[] Operators { get; set; }
-        public AircraftInformation[] Aircrafts { get; set; }
+        public AircraftInformation[] Aircraft { get; set; }
         public TracklogExtra[] TracklogExtras { get; set; }
         public int[] IgnoreQualityForEntries { get; set; }
     }

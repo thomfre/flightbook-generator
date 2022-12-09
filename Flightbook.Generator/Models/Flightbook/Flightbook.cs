@@ -21,7 +21,7 @@ namespace Flightbook.Generator.Models.Flightbook
         [UsedImplicitly]
         public DateTime GeneratedDate { get; set; } = DateTime.Now;
 
-        public List<Aircraft> Aircrafts { get; set; }
+        public List<Aircraft> Aircraft { get; set; }
         public List<Airport> Airports { get; set; }
         public List<Country> Countries { get; set; }
         public List<FlightTimeMonth> FlightTimeMonths { get; set; }

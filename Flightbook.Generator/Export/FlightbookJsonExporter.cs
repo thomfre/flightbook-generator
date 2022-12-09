@@ -23,7 +23,7 @@ namespace Flightbook.Generator.Export
             AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators, List<GpxTrack> trackLogs,
             Config configuration)
         {
-            List<Aircraft> aircrafts = ExtractAircrafts(logEntries, registrationPrefixes, aircraftInformations, aircraftOperators);
+            List<Aircraft> aircraft = ExtractAllAircraft(logEntries, registrationPrefixes, aircraftInformations, aircraftOperators);
             List<Airport> airports = ExtractAirports(logEntries, worldAirports, worldRunways, worldRegions);
             List<Country> countries = ExtractCountries(airports, worldCountries);
             List<FlightTimeMonth> flightTimeStatistics = GetFlightTimeStatistics(logEntries);
@@ -35,7 +35,7 @@ namespace Flightbook.Generator.Export
                 AirportGallerySearch = configuration.AirportGallerySearch?.Length > 0 ? configuration.AirportGallerySearch : null,
                 AircraftGallerySearch = configuration.AircraftGallerySearch?.Length > 0 ? configuration.AircraftGallerySearch : null,
                 FlickrProxyUrl = configuration.FlickrProxyUrl?.Length > 0 ? configuration.FlickrProxyUrl : null,
-                Aircrafts = aircrafts,
+                Aircraft = aircraft,
                 Airports = airports,
                 Countries = countries,
                 FlightTimeMonths = flightTimeStatistics,
@@ -45,11 +45,11 @@ namespace Flightbook.Generator.Export
             return JsonConvert.SerializeObject(flightbook);
         }
 
-        private List<Aircraft> ExtractAircrafts(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators)
+        private List<Aircraft> ExtractAllAircraft(List<LogEntry> logEntries, List<RegistrationPrefix> registrationPrefixes, AircraftInformation[] aircraftInformations, OperatorInformation[] aircraftOperators)
         {
-            List<Aircraft> aircrafts = logEntries.Select(l => l.AircraftRegistration).Distinct().Select(a => new Aircraft {Registration = a}).ToList();
+            List<Aircraft> allAircraft = logEntries.Select(l => l.AircraftRegistration).Distinct().Select(a => new Aircraft {Registration = a}).ToList();
 
-            aircrafts.ForEach(aircraft =>
+            allAircraft.ForEach(aircraft =>
             {
                 LogEntry[] filteredLogEntries = logEntries.Where(l => l.AircraftRegistration == aircraft.Registration).ToArray();
 
@@ -78,12 +78,12 @@ namespace Flightbook.Generator.Export
                 }
             });
 
-            return aircrafts;
+            return allAircraft;
         }
 
         private string GetAircraftPicture(string registration)
         {
-            return !File.Exists($@"config\aircrafts\{registration.ToLowerInvariant()}.jpg") ? null : $"/aircrafts/{registration.ToLowerInvariant()}.jpg";
+            return !File.Exists($@"config\aircraft\{registration.ToLowerInvariant()}.jpg") ? null : $"/aircraft/{registration.ToLowerInvariant()}.jpg";
         }
 
         private Operator GetAircraftOperator(string aircraftOperator, OperatorInformation[] operators)
@@ -120,7 +120,7 @@ namespace Flightbook.Generator.Export
                 airport.LastVisited = filteredLogEntries.Select(l => l.LogDate).Max();
                 airport.DistinctVisitDates = filteredLogEntries.Select(l => l.LogDate).Distinct().Count();
                 airport.TotalFlights = filteredLogEntries.Length;
-                airport.Aircrafts = filteredLogEntries.Select(l => l.AircraftRegistration).Distinct().ToArray();
+                airport.Aircraft = filteredLogEntries.Select(l => l.AircraftRegistration).Distinct().ToArray();
                 airport.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 airport.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
                 airport.AsFrom = filteredLogEntries.Any(l => l.From == airport.Icao);
