@@ -23,7 +23,17 @@ namespace Flightbook.Generator.Import
             using StreamReader reader = new(@"Data\airports.csv");
             using CsvReader csv = new(reader, CultureInfo.InvariantCulture);
 
-            return csv.GetRecords<AirportInfo>().ToList();
+            List<AirportInfo> airportInfos = csv.GetRecords<AirportInfo>().ToList();
+            airportInfos.ForEach(a =>
+            {
+                a.OurAirportsCode = a.IcaoCode;
+                if (!string.IsNullOrWhiteSpace(a.GpsCode) && a.GpsCode != a.IcaoCode)
+                {
+                    a.IcaoCode = a.GpsCode;
+                }
+            });
+
+            return airportInfos;
         }
 
         public List<RunwayInfo> GetRunways()

@@ -57,5 +57,8 @@ namespace Flightbook.Generator.Models.OurAirports
 
         [Index(17)]
         public string Keywords { get; set; }
+
+        [Ignore]
+        public string OurAirportsCode { get; set; }
     }
 }
