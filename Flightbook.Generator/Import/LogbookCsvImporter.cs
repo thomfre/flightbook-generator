@@ -92,6 +92,7 @@ namespace Flightbook.Generator.Import
             }
 
             Links parsedLinks = new();
+            List<string> youTubeLinks = new();
 
             foreach (string link in rawLinks.Split(Environment.NewLine).Select(l => l.Trim()))
             {
@@ -102,7 +103,7 @@ namespace Flightbook.Generator.Import
 
                 if (link.StartsWith("https://www.youtube.com/") || link.StartsWith("https://youtube.com/") || link.StartsWith("https://youtu.be/"))
                 {
-                    parsedLinks.Youtube = link;
+                    youTubeLinks.Add(link);
                 }
 
                 if (link.StartsWith("https://flic.kr") || link.StartsWith("https://flickr.com"))
@@ -115,6 +116,8 @@ namespace Flightbook.Generator.Import
                     parsedLinks.Facebook = link;
                 }
             }
+
+            parsedLinks.Youtube = youTubeLinks.ToArray();
 
             return parsedLinks;
         }

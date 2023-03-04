@@ -70,7 +70,7 @@ namespace Flightbook.Generator.Export
 
                 if (tracklogExtra != null)
                 {
-                    if (!string.IsNullOrWhiteSpace(tracklogExtra.Youtube) && !string.IsNullOrWhiteSpace(logEntry.Links?.Youtube) && tracklogExtra.Youtube != logEntry.Links?.Youtube)
+                    if (!string.IsNullOrWhiteSpace(tracklogExtra.Youtube) && logEntry.Links?.Youtube?.Length > 0 && tracklogExtra.Youtube != logEntry.Links?.Youtube.FirstOrDefault())
                     {
                         mismatches.Add($"|Youtube URL|{FormatValueDisplay(logEntry.Links?.Youtube)}|{tracklogExtra.Youtube}|");
                     }
@@ -111,8 +111,6 @@ namespace Flightbook.Generator.Export
 ```");
             reportBuilder.AppendLine();
             reportBuilder.AppendLine("# Log entry mismatch report");
-            reportBuilder.AppendLine();
-            reportBuilder.AppendLine($"_Generated {DateTime.Now}_");
             reportBuilder.AppendLine();
             foreach (KeyValuePair<LogEntry, string> problem in problems)
             {

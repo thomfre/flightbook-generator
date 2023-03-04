@@ -36,6 +36,27 @@ namespace Flightbook.Generator.Import
             return files.Select(file => Convert(file.FullName, logEntries, tracklogExtras, worldAirports)).ToList();
         }
 
+        private Gpx.Route GetPlan(string trackFilename)
+        {
+            string planPath = Path.Join(Directory.GetCurrentDirectory(), "config", "plan");
+            if (!Directory.Exists(planPath))
+            {
+                return null;
+            }
+
+            string planFile = Path.Join(planPath, trackFilename);
+            if (!File.Exists(planFile))
+            {
+                return null;
+            }
+
+            XmlSerializer xmlSerializer = new(typeof(Gpx));
+            using TextReader reader = new StringReader(File.ReadAllText(planFile));
+            Gpx gpx = (Gpx) xmlSerializer.Deserialize(reader);
+
+            return gpx?.Routes.FirstOrDefault();
+        }
+
         private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
         {
             XmlSerializer xmlSerializer = new(typeof(Gpx));
@@ -93,7 +114,7 @@ namespace Flightbook.Generator.Import
                 To = logEntry.To,
                 Via = logEntry.Via,
                 AsPic = logEntry.PicMinutes > 0,
-                Youtube = logEntry.Links?.Youtube ?? tracklogExtra?.Youtube,
+                Youtube = GetYouTubeLinks(logEntry, tracklogExtra),
                 Blogpost = logEntry.Links?.Blog ?? tracklogExtra?.Blogpost,
                 FacebookPost = logEntry.Links?.Facebook ?? tracklogExtra?.FacebookPost,
                 Gallery = logEntry.Links?.Flickr ?? tracklogExtra?.Gallery,
@@ -104,8 +125,19 @@ namespace Flightbook.Generator.Import
                 TotalDistance = totalDistance,
                 Metars = logEntry.Metars,
                 GeoJson = lineString,
+                Plan = GetPlan(filename),
                 SpeedElevationPoints = speedElevationPoints
             };
+        }
+
+        private string[] GetYouTubeLinks(LogEntry logEntry, TracklogExtra tracklogExtra)
+        {
+            if (logEntry.Links?.Youtube?.Length > 0)
+            {
+                return logEntry.Links?.Youtube;
+            }
+
+            return !string.IsNullOrEmpty(tracklogExtra?.Youtube) ? new[] {tracklogExtra?.Youtube} : Array.Empty<string>();
         }
 
         private LogEntry GetRelevantLogEntry(IEnumerable<LogEntry> logEntries, string fileName, DateTime trackStartTime, List<AirportInfo> worldAirports)
@@ -139,7 +171,6 @@ namespace Flightbook.Generator.Import
 
             int fileNumber = int.Parse(fileNameParts[3]);
             return relevantLogEntries.Count >= fileNumber ? relevantLogEntries[fileNumber - 1] : relevantLogEntries[0];
-
         }
 
         private static DateTime GetLogTime(DateTime logDate, string departureTime, string fromAirport, IEnumerable<AirportInfo> worldAirports)

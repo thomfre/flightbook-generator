@@ -21,7 +21,7 @@ namespace Flightbook.Generator.Models.Tracklogs
         public string To { get; set; }
         public string[] Via { get; set; }
         public bool AsPic { get; set; }
-        public string Youtube { get; set; }
+        public string[] Youtube { get; set; }
         public string Blogpost { get; set; }
         public string FacebookPost { get; set; }
         public string Gallery { get; set; }
@@ -32,6 +32,7 @@ namespace Flightbook.Generator.Models.Tracklogs
         public double TotalDistance { get; set; }
         public string[] Metars { get; set; }
         public object GeoJson { get; set; }
+        public object Plan { get; set; }
         public List<SpeedElevationPoint> SpeedElevationPoints { get; set; }
     }
 }

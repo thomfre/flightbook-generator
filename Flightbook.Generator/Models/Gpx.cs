@@ -9,6 +9,44 @@ namespace Flightbook.Generator.Models
         [XmlElement(ElementName = "trk")]
         public Track[] Tracks { get; set; }
 
+        [XmlElement(ElementName = "rte")]
+        public Route[] Routes { get; set; }
+
+        [XmlRoot(ElementName = "rte")]
+        public class Route
+        {
+            [XmlElement(ElementName = "name")]
+            public string Name { get; set; }
+
+            [XmlElement(ElementName = "number")]
+            public int Number { get; set; }
+
+            [XmlElement(ElementName = "rtept")]
+            public RoutePoint[] Points { get; set; }
+        }
+
+        [XmlRoot(ElementName = "rtept")]
+        public class RoutePoint
+        {
+            [XmlAttribute(AttributeName = "lat")]
+            public decimal Latitude { get; set; }
+
+            [XmlAttribute(AttributeName = "lon")]
+            public decimal Longitude { get; set; }
+
+            [XmlElement(ElementName = "ele")]
+            public decimal Elevation { get; set; }
+
+            [XmlElement(ElementName = "name")]
+            public string Name { get; set; }
+
+            [XmlElement(ElementName = "sym")]
+            public string Sym { get; set; }
+
+            [XmlElement(ElementName = "extensions")]
+            public SkyDemonRoutePointExtensions SkdExtensions { get; set; }
+        }
+
         [XmlRoot(ElementName = "trk")]
         public class Track
         {
@@ -43,6 +81,23 @@ namespace Flightbook.Generator.Models
 
             [XmlElement(ElementName = "time")]
             public DateTime Time { get; set; }
+        }
+
+        [XmlRoot(ElementName = "extensions")]
+        public class SkyDemonRoutePointExtensions
+        {
+            [XmlElement(ElementName = "level", Namespace = "http://www.skydemon.aero/gpxextensions")]
+            public SkyDemonLevel Level { get; set; }
+        }
+
+        [XmlRoot(ElementName = "level", Namespace = "http://www.skydemon.aero/gpxextensions")]
+        public class SkyDemonLevel
+        {
+            [XmlAttribute(AttributeName = "type")]
+            public string Type { get; set; }
+
+            [XmlAttribute(AttributeName = "value")]
+            public int Value { get; set; }
         }
     }
 }

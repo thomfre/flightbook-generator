@@ -40,7 +40,7 @@ namespace Flightbook.Generator.Models
     public class Links
     {
         [CanBeNull]
-        public string Youtube { get; set; }
+        public string[] Youtube { get; set; }
         [CanBeNull]
         public string Flickr { get; set; }
         [CanBeNull]

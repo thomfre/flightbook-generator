@@ -80,8 +80,6 @@ namespace Flightbook.Generator.Export
             reportBuilder.AppendLine();
             reportBuilder.AppendLine("# Log entry quality report");
             reportBuilder.AppendLine();
-            reportBuilder.AppendLine($"_Generated {DateTime.Now}_");
-            reportBuilder.AppendLine();
 
             if (lowQuality.Count == 0)
             {

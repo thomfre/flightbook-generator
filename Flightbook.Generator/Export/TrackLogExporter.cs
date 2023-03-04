@@ -37,7 +37,7 @@ namespace Flightbook.Generator.Export
                     Airports = new[] {t.From, t.To}.Concat(t.Via ?? new string[] { }).ToArray(),
                     Filename = fileName,
                     AsPic = t.AsPic,
-                    HasYoutube = !string.IsNullOrEmpty(t.Youtube),
+                    HasYoutube = t.Youtube.Length > 0,
                     HasBlogpost = !string.IsNullOrEmpty(t.Blogpost),
                     HasFacebookPost = !string.IsNullOrEmpty(t.FacebookPost),
                     HasGallery = !string.IsNullOrEmpty(t.Gallery)
