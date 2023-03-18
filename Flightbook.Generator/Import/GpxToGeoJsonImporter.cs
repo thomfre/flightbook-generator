@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Xml;
 using System.Xml.Serialization;
 using Flightbook.Generator.Models;
 using Flightbook.Generator.Models.Flightbook;
@@ -10,7 +11,9 @@ using Flightbook.Generator.Models.OurAirports;
 using Flightbook.Generator.Models.Tracklogs;
 using GeoJSON.Net.Geometry;
 using GeoTimeZone;
+using TcxTools;
 using TimeZoneConverter;
+using Position = GeoJSON.Net.Geometry.Position;
 
 namespace Flightbook.Generator.Import
 {
@@ -31,9 +34,10 @@ namespace Flightbook.Generator.Import
 
             DirectoryInfo configDirectory = new(gpxPath);
             List<FileInfo> files = configDirectory.GetFiles()
-                .Where(f => f.Extension.Equals(".Gpx", StringComparison.InvariantCultureIgnoreCase)).ToList();
+                .Where(f => f.Extension.Equals(".Gpx", StringComparison.InvariantCultureIgnoreCase) || f.Extension.Equals(".Tcx", StringComparison.InvariantCultureIgnoreCase))
+                .ToList();
 
-            return files.Select(file => Convert(file.FullName, logEntries, tracklogExtras, worldAirports)).ToList();
+            return files.Select(file => Convert(file.FullName, file.Extension, logEntries, tracklogExtras, worldAirports)).ToList();
         }
 
         private Gpx.Route GetPlan(string trackFilename)
@@ -44,7 +48,7 @@ namespace Flightbook.Generator.Import
                 return null;
             }
 
-            string planFile = Path.Join(planPath, trackFilename);
+            string planFile = Path.Join(planPath, trackFilename.Replace(".tcx",".gpx"));
             if (!File.Exists(planFile))
             {
                 return null;
@@ -57,7 +61,17 @@ namespace Flightbook.Generator.Import
             return gpx?.Routes.FirstOrDefault();
         }
 
-        private GpxTrack Convert(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
+        private GpxTrack Convert(string filePath, string fileExtension, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
+        {
+            return fileExtension.ToLowerInvariant() switch
+            {
+                ".gpx" => ConvertGpx(filePath, logEntries, tracklogExtras, worldAirports),
+                ".tcx" => ConvertTcx(filePath, logEntries, tracklogExtras, worldAirports),
+                var _ => throw new NotSupportedException($"File type {fileExtension} not supported")
+            };
+        }
+
+        private GpxTrack ConvertGpx(string gpxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
         {
             XmlSerializer xmlSerializer = new(typeof(Gpx));
             using TextReader reader = new StringReader(File.ReadAllText(gpxPath));
@@ -130,6 +144,104 @@ namespace Flightbook.Generator.Import
             };
         }
 
+        private GpxTrack ConvertTcx(string tcxPath, List<LogEntry> logEntries, TracklogExtra[] tracklogExtras, List<AirportInfo> worldAirports)
+        {
+            XmlSerializer xmlSerializer = new(typeof(TrainingCenterDatabase));
+            using TextReader reader = new StringReader(File.ReadAllText(tcxPath));
+            TrainingCenterDatabase tcx = (TrainingCenterDatabase) xmlSerializer.Deserialize(reader);
+
+            if (tcx == null)
+            {
+                return null;
+            }
+
+            List<Trackpoint> trackpoints = tcx.Activities.Activity.First().Lap.First().Track;
+
+            IEnumerable<Position> positions = trackpoints?.Where(p => p.Position != null).Select(p =>
+                new Position(p.Position.LatitudeDegrees.ToString(CultureInfo.InvariantCulture), p.Position.LongitudeDegrees.ToString(CultureInfo.InvariantCulture), p.AltitudeMeters.ToString(CultureInfo.InvariantCulture)));
+
+            LineString lineString = new(positions);
+
+            IPosition previousCoordinate = null;
+            double totalDistance = 0.0;
+            foreach (IPosition lineStringCoordinate in lineString.Coordinates)
+            {
+                if (previousCoordinate != null)
+                {
+                    double distance = previousCoordinate.DistanceTo(lineStringCoordinate);
+                    if (double.IsNaN(distance))
+                    {
+                        continue;
+                    }
+
+                    totalDistance += distance;
+                }
+
+                previousCoordinate = lineStringCoordinate;
+            }
+
+            DateTime? trackStartTime = tcx.Activities.Activity.First().Lap.First().Track?.Select(p => p.Time).Min();
+            string date = trackStartTime.HasValue ? trackStartTime.Value.ToString("yyyy-MM-dd") : "unknown";
+
+            string filename = Path.GetFileName(tcxPath);
+
+            TracklogExtra tracklogExtra = tracklogExtras.FirstOrDefault(t => t.Tracklog == filename);
+
+            LogEntry logEntry = GetRelevantLogEntry(logEntries, filename, trackStartTime ?? DateTime.Now, worldAirports);
+
+            List<SpeedElevationPoint> speedElevationPoints = trackpoints?.Select(p => new SpeedElevationPoint((decimal) p.AltitudeMeters, GetSpeed(p))).ToList();
+
+            return new GpxTrack
+            {
+                LogEntry = logEntry.EntryNumber,
+                Date = date,
+                DateTime = trackStartTime ?? DateTime.Now,
+                Name = $"{logEntry.From} - {logEntry.To}",
+                Aircraft = tracklogExtra?.Aircraft ?? GetAircraft(logEntries, trackStartTime ?? DateTime.Now, logEntry),
+                From = logEntry.From,
+                To = logEntry.To,
+                Via = logEntry.Via,
+                AsPic = logEntry.PicMinutes > 0,
+                Youtube = GetYouTubeLinks(logEntry, tracklogExtra),
+                Blogpost = logEntry.Links?.Blog ?? tracklogExtra?.Blogpost,
+                FacebookPost = logEntry.Links?.Facebook ?? tracklogExtra?.FacebookPost,
+                Gallery = logEntry.Links?.Flickr ?? tracklogExtra?.Gallery,
+                AltitudeMax = (int) Math.Round(speedElevationPoints?.Max(p => p.Elevation) ?? 0),
+                AltitudeAverage = (int) Math.Round(speedElevationPoints?.Average(p => p.Elevation) ?? 0),
+                SpeedMax = (int) Math.Round(speedElevationPoints?.Max(p => p.Speed) ?? 0),
+                SpeedAverage = (int) Math.Round(speedElevationPoints?.Average(p => p.Speed) ?? 0),
+                TotalDistance = totalDistance,
+                Metars = logEntry.Metars,
+                GeoJson = lineString,
+                Plan = GetPlan(filename),
+                SpeedElevationPoints = speedElevationPoints
+            };
+        }
+
+        private decimal GetSpeed(Trackpoint trackpoint)
+        {
+            if (trackpoint.Extensions == null)
+            {
+                return 0;
+            }
+
+            XmlElement ext = trackpoint.Extensions.Any.FirstOrDefault(e => e.Name == "ns3:TPX");
+            if (ext == null)
+            {
+                return 0;
+            }
+
+            foreach (XmlNode child in ext.ChildNodes)
+            {
+                if (child.Name == "ns3:Speed")
+                {
+                    return decimal.Parse(child.InnerText);
+                }
+            }
+
+            return 0;
+        }
+
         private string[] GetYouTubeLinks(LogEntry logEntry, TracklogExtra tracklogExtra)
         {
             if (logEntry.Links?.Youtube?.Length > 0)
@@ -163,7 +275,7 @@ namespace Flightbook.Generator.Import
                 return mostRelevantLogEntry;
             }
 
-            string[] fileNameParts = fileName.Replace(".gpx", "").Split("-");
+            string[] fileNameParts = fileName.Replace(".gpx", "").Replace(".tcx","").Split("-");
             if (fileNameParts.Length <= 3 && mostRelevantLogEntry != null)
             {
                 return mostRelevantLogEntry;
