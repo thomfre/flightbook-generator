@@ -71,6 +71,7 @@ namespace Flightbook.Generator.Export
         {
             DirectoryCopy(Path.Join(frameworkDir, "public"), Path.Join(outputDir, "public"), true);
             DirectoryCopy(Path.Join(frameworkDir, "src"), Path.Join(outputDir, "src"), true);
+            DirectoryCopy(Path.Join(frameworkDir, ".yarn", "patches"), Path.Join(outputDir, ".yarn", "patches"), true);
             DirectoryCopy(Path.Join(frameworkDir, ".yarn", "plugins"), Path.Join(outputDir, ".yarn", "plugins"), true);
             DirectoryCopy(Path.Join(frameworkDir, ".yarn", "releases"), Path.Join(outputDir, ".yarn", "releases"), true);
             DirectoryCopy(Path.Join(frameworkDir, ".yarn", "versions"), Path.Join(outputDir, ".yarn", "versions"), true);
