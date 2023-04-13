@@ -17,7 +17,7 @@ namespace Flightbook.Generator.Import
 
     internal class LogbookCsvImporter : ILogbookCsvImporter
     {
-        private readonly Regex _metarRegex = new("^[A-Z]{4} .*=?$", RegexOptions.Multiline);
+        private readonly Regex _metarRegex = new("^[A-Z]{4} .*=$?", RegexOptions.Multiline | RegexOptions.ECMAScript | RegexOptions.IgnoreCase);
 
         public List<LogEntry> Import(Config configuration)
         {
