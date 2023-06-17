@@ -19,6 +19,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public int NumberOfAirports { get; set; }
         public bool AsDual { get; set; }
         public bool AsPic { get; set; }
+        public bool AsInstructor { get; set; }
         public string Picture { get; set; }
     }
 }

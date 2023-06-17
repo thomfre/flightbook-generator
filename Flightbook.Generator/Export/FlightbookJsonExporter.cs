@@ -64,6 +64,7 @@ namespace Flightbook.Generator.Export
                 aircraft.NumberOfAirports = filteredLogEntries.SelectMany(l => new List<string> {l.From, l.To}.Concat(l.Via ?? new string[0])).Distinct().Count();
                 aircraft.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 aircraft.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
+                aircraft.AsInstructor = filteredLogEntries.Any(l => l.InstructorMinutes > 0);
                 aircraft.Picture = GetAircraftPicture(aircraft.Registration);
 
                 AircraftInformation aircraftInformation = aircraftInformations.FirstOrDefault(a => a.Registration == aircraft.Registration);
@@ -114,7 +115,7 @@ namespace Flightbook.Generator.Export
 
             airports.ForEach(airport =>
             {
-                LogEntry[] filteredLogEntries = logEntries.Where(l => l.From == airport.Icao || l.To == airport.Icao || l.Via != null && l.Via.Contains(airport.Icao)).ToArray();
+                LogEntry[] filteredLogEntries = logEntries.Where(l => l.From == airport.Icao || l.To == airport.Icao || (l.Via != null && l.Via.Contains(airport.Icao))).ToArray();
 
                 airport.FirstVisited = filteredLogEntries.Select(l => l.LogDate).Min();
                 airport.LastVisited = filteredLogEntries.Select(l => l.LogDate).Max();
@@ -123,6 +124,7 @@ namespace Flightbook.Generator.Export
                 airport.Aircraft = filteredLogEntries.Select(l => l.AircraftRegistration).Distinct().ToArray();
                 airport.AsDual = filteredLogEntries.Any(l => l.DualMinutes > 0);
                 airport.AsPic = filteredLogEntries.Any(l => l.PicMinutes > 0);
+                airport.AsInstructor = filteredLogEntries.Any(l => l.InstructorMinutes > 0);
                 airport.AsFrom = filteredLogEntries.Any(l => l.From == airport.Icao);
                 airport.AsTo = filteredLogEntries.Any(l => l.To == airport.Icao);
                 airport.AsVia = filteredLogEntries.Any(l => l.Via != null && l.Via.Contains(airport.Icao));
@@ -220,6 +222,7 @@ namespace Flightbook.Generator.Export
                     NightMinutes = filteredLogEntries.Sum(l => l.NightMinutes),
                     DualMinutes = filteredLogEntries.Sum(l => l.DualMinutes),
                     PicMinutes = filteredLogEntries.Sum(l => l.PicMinutes),
+                    InstructorMinutes = filteredLogEntries.Sum(l => l.InstructorMinutes),
                     NumberOfFlights = filteredLogEntries.Count,
                     Landings = filteredLogEntries.Sum(l => l.DayLandings + l.NightLandings),
                     NightLandings = filteredLogEntries.Sum(l => l.NightLandings),

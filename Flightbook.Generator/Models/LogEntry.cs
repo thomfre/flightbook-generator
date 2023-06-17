@@ -18,6 +18,7 @@ namespace Flightbook.Generator.Models
         public int TotalMinutes { get; set; }
         public int PicMinutes { get; set; }
         public int DualMinutes { get; set; }
+        public int InstructorMinutes { get; set; }
         public int InstrumentMinutes { get; set; }
         public int NightMinutes { get; set; }
         public int DayLandings { get; set; }
@@ -33,6 +34,7 @@ namespace Flightbook.Generator.Models
         public string Comments { get; set; }
         public string[] Approaches { get; set; }
         public bool Aborted { get; set; }
+
         [CanBeNull]
         public Links Links { get; set; }
     }
@@ -41,10 +43,13 @@ namespace Flightbook.Generator.Models
     {
         [CanBeNull]
         public string[] Youtube { get; set; }
+
         [CanBeNull]
         public string Flickr { get; set; }
+
         [CanBeNull]
         public string Blog { get; set; }
+
         [CanBeNull]
         public string Facebook { get; set; }
     }

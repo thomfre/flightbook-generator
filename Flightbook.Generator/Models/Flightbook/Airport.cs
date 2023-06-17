@@ -17,6 +17,7 @@ namespace Flightbook.Generator.Models.Flightbook
         public DateTime LastVisited { get; set; }
         public bool AsDual { get; set; }
         public bool AsPic { get; set; }
+        public bool AsInstructor { get; set; }
         public bool AsFrom { get; set; }
         public bool AsTo { get; set; }
         public bool AsVia { get; set; }
