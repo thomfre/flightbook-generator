@@ -99,7 +99,7 @@ namespace Flightbook.Generator.Export
 
         private static string GetAircraftOperatorPicture(string aircraftOperator)
         {
-            string filename = aircraftOperator.Replace(" ", "-").ToLowerInvariant().Replace("ø", "o").Replace("å", "a").Replace("æ", "ae");
+            string filename = aircraftOperator.Replace(" ", "-").ToLowerInvariant().Replace("ø", "o").Replace("å", "a").Replace("æ", "ae").Replace("ö","o").Replace("ä","a");
             filename = string.Join("_", filename.Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries)).TrimEnd('.');
 
             return !File.Exists($@"config\operators\{filename}.png") ? null : $"/operators/{filename}.png";
