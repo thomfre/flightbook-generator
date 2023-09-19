@@ -27,9 +27,10 @@ namespace Flightbook.Generator
         private readonly IOurAirportsImporter _ourAirportsImporter;
         private readonly IRegistrationsImporter _registrationsImporter;
         private readonly ITracklogExporter _tracklogExporter;
+        private readonly IHeatmapExporter _heatmapExporter;
 
         public Application(Format console, IConfigurationLoader configurationLoader, ILogbookCsvImporter logbookCsvImporter, IOurAirportsImporter ourAirportsImporter, IRegistrationsImporter registrationsImporter, IFlightbookJsonExporter flightbookJsonExporter,
-            IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IAirportExporter airportExporter, ILogEntryComparisonReport logEntryComparisonReport, ILogEntryQualityReport logEntryQualityReport)
+            IFlightbookExporter flightbookExporter, IGpxToGeoJsonImporter gpxToGeoJsonImporter, ITracklogExporter tracklogExporter, IHeatmapExporter heatmapExporter, IAirportExporter airportExporter, ILogEntryComparisonReport logEntryComparisonReport, ILogEntryQualityReport logEntryQualityReport)
         {
             _console = console;
             _configurationLoader = configurationLoader;
@@ -40,6 +41,7 @@ namespace Flightbook.Generator
             _flightbookExporter = flightbookExporter;
             _gpxToGeoJsonImporter = gpxToGeoJsonImporter;
             _tracklogExporter = tracklogExporter;
+            _heatmapExporter = heatmapExporter;
             _airportExporter = airportExporter;
             _logEntryComparisonReport = logEntryComparisonReport;
             _logEntryQualityReport = logEntryQualityReport;
@@ -87,9 +89,13 @@ namespace Flightbook.Generator
             List<GpxTrack> trackLogs = _gpxToGeoJsonImporter.SearchAndImport(logEntries, configuration.TracklogExtras, worldAirports);
             _console.WriteLine($"Converted {trackLogs.Count} GPX files", Colors.txtSuccess);
 
-            _console.WriteLine("Exporting Tracklog data", Colors.txtInfo);
+            _console.WriteLine("Creating Tracklog data", Colors.txtInfo);
             (string trackLogListJson, Dictionary<string, string> trackLogFileJson) = _tracklogExporter.CreateTracklogFiles(trackLogs);
-            _console.WriteLine("flightbook.json exported", Colors.txtSuccess);
+            _console.WriteLine("Tracklog data crated", Colors.txtSuccess);
+
+            _console.WriteLine("Exporting Heatmap data", Colors.txtInfo);
+            string heatmapJson = _heatmapExporter.CreateHeatmapFile(trackLogs);
+            _console.WriteLine("heatmap.json exported", Colors.txtSuccess);
 
             _console.WriteLine("Exporting Flightbook data", Colors.txtInfo);
             string flightbookJson = _flightbookJsonExporter.CreateFlightbookJson(logEntries, worldAirports, worldRunways, worldCountries, worldRegions, registrationPrefixes, configuration.Aircraft, configuration.Operators, trackLogs, configuration);
@@ -100,7 +106,7 @@ namespace Flightbook.Generator
             _console.WriteLine("Exported airports", Colors.txtSuccess);
 
             _console.WriteLine("Updating framework and injecting data", Colors.txtInfo);
-            if (_flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, airportsToCollect, configuration.CfAnalytics))
+            if (_flightbookExporter.Export(flightbookJson, trackLogListJson, trackLogFileJson, heatmapJson, airportsToCollect, configuration.CfAnalytics))
             {
                 _console.WriteLine("Framework and data updated, remember to commit and push changes", Colors.txtSuccess);
             }

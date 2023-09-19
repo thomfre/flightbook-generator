@@ -8,12 +8,12 @@ namespace Flightbook.Generator.Export
 {
     public interface IFlightbookExporter
     {
-        bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics);
+        bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string heatmapJson, string airportsToCollect, string cfAnalytics);
     }
 
     internal class FlightbookExporter : IFlightbookExporter
     {
-        public bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string airportsToCollect, string cfAnalytics)
+        public bool Export(string flightbookJson, string trackLogListJson, Dictionary<string, string> trackLogFileJson, string heatmapJson, string airportsToCollect, string cfAnalytics)
         {
             string flightbookDir = "flightbook";
             string configDir = "config";
@@ -28,6 +28,7 @@ namespace Flightbook.Generator.Export
             CopyFramework(flightbookDir, outputDir);
             ExportJson(flightbookJson, outputDir);
             ExportTrackLogs(trackLogListJson, trackLogFileJson, outputDir);
+            ExportHeatmap(heatmapJson, outputDir);
             ExportAirportsToCollect(airportsToCollect, outputDir);
             CopyOtherFiles(configDir, outputDir);
             InjectCfAnalytics(outputDir, cfAnalytics);
@@ -148,6 +149,13 @@ namespace Flightbook.Generator.Export
                 trackLogOutputFile.Write(content);
                 trackLogOutputFile.Flush();
             }
+        }
+
+        private void ExportHeatmap(string heatmapJson, string outputDir)
+        {
+            using StreamWriter outputFile = new(Path.Join(outputDir, @"src\data\heatmap.json"), false, Encoding.UTF8);
+            outputFile.Write(heatmapJson);
+            outputFile.Flush();
         }
 
         private void ExportAirportsToCollect(string airportsToCollect, string outputDir)

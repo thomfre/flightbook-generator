@@ -23,6 +23,7 @@ namespace Flightbook.Generator
             builder.RegisterType<FlightbookExporter>().AsImplementedInterfaces();
             builder.RegisterType<GpxToGeoJsonImporter>().AsImplementedInterfaces();
             builder.RegisterType<TrackLogExporter>().AsImplementedInterfaces();
+            builder.RegisterType<HeatmapExporter>().AsImplementedInterfaces();
             builder.RegisterType<AirportExporter>().AsImplementedInterfaces();
             builder.RegisterType<LogEntryComparisonReport>().AsImplementedInterfaces();
             builder.RegisterType<LogEntryQualityReport>().AsImplementedInterfaces();
